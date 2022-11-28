@@ -11,4 +11,12 @@ public class StoryTests
         var story = new Story("My test story");
         Assert.That(story.Title, Is.EqualTo("My test story"));
     }
+
+    [Test]
+    public void CreateNewStoryThrowsWhenTitleIsNull()
+    {
+        Assert.That(
+            () => new Story(null),
+            Throws.InstanceOf<ArgumentNullException>());
+    }
 }
