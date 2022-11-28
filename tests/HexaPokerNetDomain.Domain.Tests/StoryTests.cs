@@ -15,8 +15,10 @@ public class StoryTests
     [Test]
     public void CreateNewStoryThrowsWhenTitleIsNull()
     {
+        #nullable disable
         Assert.That(
             () => new Story(null),
             Throws.InstanceOf<ArgumentNullException>());
+        #nullable restore
     }
 }
