@@ -15,10 +15,10 @@ public class StoryTests
     [Test]
     public void CreateNewStoryThrowsWhenTitleIsNull()
     {
-        #nullable disable
+#nullable disable
         Assert.That(
             () => new Story(null),
             Throws.InstanceOf<ArgumentNullException>());
-        #nullable restore
+#nullable restore
     }
 }
