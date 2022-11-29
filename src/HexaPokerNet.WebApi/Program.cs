@@ -1,6 +1,10 @@
+using HexaPokerNet.Adapter.Repositories;
+using HexaPokerNet.Application.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add adapters and services to the container.
+builder.Services.AddSingleton<IWritableRepository, InMemoryRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
