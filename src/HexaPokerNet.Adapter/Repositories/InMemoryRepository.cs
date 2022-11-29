@@ -6,7 +6,7 @@ using HexaPokerNet.Application.Repositories;
 
 public class InMemoryRepository: IWritableRepository
 {
-    private readonly List<Story> _stories = new List<Story>();
+    private readonly List<Story> _stories = new();
 
     Task IWritableRepository.AddStory(Story story)
     {
