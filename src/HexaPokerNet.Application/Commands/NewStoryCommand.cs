@@ -16,6 +16,8 @@ public class NewStoryCommand
 
     public async Task<Story> Execute()
     {
-        return await this._repository.CreateStory(this._title);
+        var story = new Story(this._title);
+        await this._repository.AddStory(story);
+        return story;
     }
 }

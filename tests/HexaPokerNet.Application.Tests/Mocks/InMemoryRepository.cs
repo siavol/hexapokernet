@@ -5,12 +5,8 @@ using HexaPokerNet.Application.Repositories;
 
 class InMemoryRepository : IWritableRepository
 {
-    Task<Story> IWritableRepository.CreateStory(string title)
+    Task IWritableRepository.AddStory(Story story)
     {
-        return Task.Run(() =>
-        {
-            var story = new Story(title);
-            return story;
-        });
+        return Task.Run(() => {});
     }
 }

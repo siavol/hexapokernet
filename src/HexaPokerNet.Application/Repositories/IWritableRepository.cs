@@ -4,5 +4,5 @@ using HexaPokerNet.Domain;
 
 public interface IWritableRepository
 {
-    Task<Story> CreateStory(string title);
+    Task AddStory(Story story);
 }
