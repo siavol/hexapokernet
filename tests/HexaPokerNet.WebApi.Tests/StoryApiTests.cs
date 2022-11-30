@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Testing;
+using Newtonsoft.Json;
 
 namespace HexaPokerNet.WebApi.Tests;
 
@@ -23,7 +24,10 @@ public class StoryApiTests
             }));
 
         response.EnsureSuccessStatusCode();
-        // Assert.That(response.Content.ReadFromJsonAsync());
-        Assert.Pass();
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.That(body, Is.EqualTo(JsonConvert.SerializeObject(new
+        {
+            title = "My test story"
+        })));
     }
 }
