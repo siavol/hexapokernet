@@ -42,4 +42,9 @@ app.MapControllers();
 
 app.Run();
 
+
+/// <summary>
+/// Web API program. 
+/// </summary>
+// ReSharper disable once ClassNeverInstantiated.Global
 public partial class Program { }
