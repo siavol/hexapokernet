@@ -1,12 +1,26 @@
 namespace HexaPokerNet.Application.Tests.Mocks;
 
-using HexaPokerNet.Domain;
-using HexaPokerNet.Application.Repositories;
+using Domain;
+using Repositories;
 
-class InMemoryRepository : IWritableRepository
+class InMemoryRepository : IWritableRepository, IReadableRepository
 {
-    Task IWritableRepository.AddStory(Story story)
+    private readonly Dictionary<string, Story> _storiesStorage = new();
+    
+    public Task AddStory(Story story)
     {
-        return Task.Run(() => {});
+        if (story == null) throw new ArgumentNullException(nameof(story));
+        _storiesStorage[story.Id] = story;
+        return Task.CompletedTask;
+    }
+
+    public Task<Story> GetStoryById(string storyId)
+    {
+        if (!_storiesStorage.ContainsKey(storyId))
+        {
+            throw new EntityNotFound();
+        }
+
+        return Task.FromResult(_storiesStorage[storyId]);
     }
 }

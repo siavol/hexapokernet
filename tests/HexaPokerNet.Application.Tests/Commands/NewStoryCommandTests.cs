@@ -1,7 +1,7 @@
 namespace HexaPokerNet.Application.Tests;
 
-using HexaPokerNet.Application.Commands;
-using HexaPokerNet.Application.Tests.Mocks;
+using Commands;
+using Mocks;
 
 [TestFixture]
 public class NewStoryCommandTests
@@ -11,13 +11,13 @@ public class NewStoryCommandTests
     [SetUp]
     public void Setup()
     {
-        this._repository = new InMemoryRepository();
+        _repository = new InMemoryRepository();
     }
 
     [Test]
     public async Task CreateCommand()
     {
-        var command = new NewStoryCommand("My test command", this._repository);
+        var command = new NewStoryCommand("My test command", _repository);
         var story = await command.Execute();
         Assert.That(story.Title, Is.EqualTo("My test command"));
     }

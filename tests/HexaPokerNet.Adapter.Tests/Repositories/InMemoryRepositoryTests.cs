@@ -1,7 +1,7 @@
 namespace HexaPokerNet.Adapter.Tests;
 
-using HexaPokerNet.Domain;
-using HexaPokerNet.Adapter.Repositories;
+using Domain;
+using Repositories;
 using HexaPokerNet.Application.Repositories;
 
 [TestFixture]
@@ -12,13 +12,13 @@ public class InMemoryRepositoryTests
     [SetUp]
     public void Setup()
     {
-        this._repository = new InMemoryRepository();
+        _repository = new InMemoryRepository();
     }
 
     [Test]
     public void AddStory()
     {
-        this._repository.AddStory(new Story("My test story"));
+        _repository.AddStory(new Story("My test story"));
         Assert.Pass();
     }
 }

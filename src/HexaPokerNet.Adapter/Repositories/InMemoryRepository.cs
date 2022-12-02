@@ -1,7 +1,7 @@
 namespace HexaPokerNet.Adapter.Repositories;
 
 using System;
-using HexaPokerNet.Domain;
+using Domain;
 using HexaPokerNet.Application.Repositories;
 
 public class InMemoryRepository: IWritableRepository
@@ -16,7 +16,7 @@ public class InMemoryRepository: IWritableRepository
         }
 
         return Task.Run(() => {
-            this._stories.Add(story);
+            _stories.Add(story);
         });
     }
 }

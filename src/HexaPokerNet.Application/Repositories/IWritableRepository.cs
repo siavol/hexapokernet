@@ -1,6 +1,6 @@
 namespace HexaPokerNet.Application.Repositories;
 
-using HexaPokerNet.Domain;
+using Domain;
 
 public interface IWritableRepository
 {

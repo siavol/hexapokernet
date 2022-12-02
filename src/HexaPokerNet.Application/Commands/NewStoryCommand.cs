@@ -1,7 +1,7 @@
 ﻿namespace HexaPokerNet.Application.Commands;
 
-using HexaPokerNet.Domain;
-using HexaPokerNet.Application.Repositories;
+using Domain;
+using Repositories;
 
 public class NewStoryCommand
 {
@@ -10,14 +10,14 @@ public class NewStoryCommand
 
     public NewStoryCommand(string title, IWritableRepository repository)
     {
-        this._title = title ?? throw new ArgumentNullException(nameof(title));
-        this._repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _title = title ?? throw new ArgumentNullException(nameof(title));
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
 
     public async Task<Story> Execute()
     {
-        var story = new Story(this._title);
-        await this._repository.AddStory(story);
+        var story = new Story(_title);
+        await _repository.AddStory(story);
         return story;
     }
 }
