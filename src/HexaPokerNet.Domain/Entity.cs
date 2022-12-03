@@ -8,9 +8,4 @@ public abstract class Entity
     {
         Id = id;
     }
-
-    public Entity()
-    {
-        Id = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-    }
 }

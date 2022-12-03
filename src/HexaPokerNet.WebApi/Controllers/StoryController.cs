@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using HexaPokerNet.Application.Commands;
 using HexaPokerNet.Application.Repositories;
+using HexaPokerNet.Domain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HexaPokerNet.WebApi.Controllers;
@@ -21,9 +22,10 @@ public class StoryController : Controller
     [HttpPost]
     public async Task<IActionResult> Add(
         [FromBody] AddStoryParameters parameters,
-        [FromServices] IWritableRepository writableRepository)
+        [FromServices] IWritableRepository writableRepository,
+        [FromServices] IEntityIdGenerator idGenerator)
     {
-        var command = new NewStoryCommand(parameters.Title, writableRepository);
+        var command = new NewStoryCommand(parameters.Title, writableRepository, idGenerator);
         var story = await command.Execute();
         return Ok(story);
     }

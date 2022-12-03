@@ -1,12 +1,16 @@
 using System.Reflection;
+using HexaPokerNet.Adapter;
 using HexaPokerNet.Adapter.Repositories;
 using HexaPokerNet.Application.Repositories;
+using HexaPokerNet.Domain;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add adapters and services to the container.
-builder.Services.AddSingleton<IWritableRepository, InMemoryRepository>();
+builder.Services
+    .AddSingleton<IWritableRepository, InMemoryRepository>()
+    .AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
