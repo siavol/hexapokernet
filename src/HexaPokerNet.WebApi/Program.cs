@@ -8,8 +8,10 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add adapters and services to the container.
+var repository = new InMemoryRepository();
 builder.Services
-    .AddSingleton<IWritableRepository, InMemoryRepository>()
+    .AddSingleton<IWritableRepository>(repository)
+    .AddSingleton<IReadableRepository>(repository)
     .AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
 
 builder.Services.AddControllers();

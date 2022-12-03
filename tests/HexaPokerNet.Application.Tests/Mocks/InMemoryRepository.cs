@@ -18,7 +18,7 @@ class InMemoryRepository : IWritableRepository, IReadableRepository
     {
         if (!_storiesStorage.ContainsKey(storyId))
         {
-            throw new EntityNotFound();
+            throw new EntityNotFoundException();
         }
 
         return Task.FromResult(_storiesStorage[storyId]);

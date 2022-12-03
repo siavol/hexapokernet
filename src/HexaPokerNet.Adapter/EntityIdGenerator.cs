@@ -2,7 +2,7 @@
 
 namespace HexaPokerNet.Adapter;
 
-public class EntityIdGenerator: IEntityIdGenerator
+public class EntityIdGenerator : IEntityIdGenerator
 {
     public string NewId()
     {
