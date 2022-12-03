@@ -1,14 +1,13 @@
-﻿using HexaPokerNet.Application.Commands;
-using HexaPokerNet.Application.Queries;
+﻿using HexaPokerNet.Application.Queries;
 using HexaPokerNet.Application.Tests.Mocks;
 using HexaPokerNet.Domain;
 
 namespace HexaPokerNet.Application.Tests.Queries;
 
 [TestFixture]
-public class GetStoryByIdQueryTests
+public class QueryStoryByIdTests
 {
-    private InMemoryRepository _repository;
+    private InMemoryRepository _repository = null!;
 
     [SetUp]
     public void Setup()
@@ -23,7 +22,7 @@ public class GetStoryByIdQueryTests
         var existingStory = new Story(storyId, "My test story");
         await _repository.AddStory(existingStory);
 
-        var query = new GetStoryByIdQuery(storyId, _repository);
+        var query = new QueryStoryById(storyId, _repository);
         var story = await query.Query();
         Assert.That(story, Is.SameAs(existingStory));
     }
