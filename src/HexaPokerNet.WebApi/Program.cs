@@ -1,12 +1,19 @@
 using System.Reflection;
+using HexaPokerNet.Adapter;
 using HexaPokerNet.Adapter.Repositories;
 using HexaPokerNet.Application.Repositories;
+using HexaPokerNet.Domain;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddJsonConsole();
 
 // Add adapters and services to the container.
-builder.Services.AddSingleton<IWritableRepository, InMemoryRepository>();
+var repository = new InMemoryRepository();
+builder.Services
+    .AddSingleton<IWritableRepository>(repository)
+    .AddSingleton<IReadableRepository>(repository)
+    .AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -19,12 +26,13 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Hexagon Poker API",
         Description = "An ASP.NET Core Web API for the Hexagon Poker API"
     });
-    
+
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 var app = builder.Build();
+app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 

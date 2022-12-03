@@ -1,12 +1,12 @@
 namespace HexaPokerNet.Adapter.Repositories;
 
 using System;
-using HexaPokerNet.Domain;
+using Domain;
 using HexaPokerNet.Application.Repositories;
 
-public class InMemoryRepository: IWritableRepository
+public class InMemoryRepository : IWritableRepository, IReadableRepository
 {
-    private readonly List<Story> _stories = new();
+    private readonly Dictionary<string, Story> _stories = new();
 
     Task IWritableRepository.AddStory(Story story)
     {
@@ -15,8 +15,19 @@ public class InMemoryRepository: IWritableRepository
             throw new ArgumentNullException(nameof(story));
         }
 
-        return Task.Run(() => {
-            this._stories.Add(story);
+        return Task.Run(() =>
+        {
+            _stories.Add(story.Id, story);
         });
+    }
+
+    Task<Story> IReadableRepository.GetStoryById(string storyId)
+    {
+        if (!_stories.TryGetValue(storyId, out var story))
+        {
+            throw new EntityNotFoundException();
+        }
+
+        return Task.FromResult(story);
     }
 }

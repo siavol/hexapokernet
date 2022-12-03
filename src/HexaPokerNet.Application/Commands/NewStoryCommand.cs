@@ -1,23 +1,26 @@
 ﻿namespace HexaPokerNet.Application.Commands;
 
-using HexaPokerNet.Domain;
-using HexaPokerNet.Application.Repositories;
+using Domain;
+using Repositories;
 
 public class NewStoryCommand
 {
     private readonly IWritableRepository _repository;
+    private readonly IEntityIdGenerator _idGenerator;
     private readonly string _title;
 
-    public NewStoryCommand(string title, IWritableRepository repository)
+    public NewStoryCommand(string title, IWritableRepository repository, IEntityIdGenerator idGenerator)
     {
-        this._title = title ?? throw new ArgumentNullException(nameof(title));
-        this._repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _title = title ?? throw new ArgumentNullException(nameof(title));
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _idGenerator = idGenerator ?? throw new ArgumentNullException(nameof(idGenerator));
     }
 
     public async Task<Story> Execute()
     {
-        var story = new Story(this._title);
-        await this._repository.AddStory(story);
+        var storyId = _idGenerator.NewId();
+        var story = new Story(storyId, _title);
+        await _repository.AddStory(story);
         return story;
     }
 }
