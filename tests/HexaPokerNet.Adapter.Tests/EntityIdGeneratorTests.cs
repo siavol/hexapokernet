@@ -12,7 +12,7 @@ public class EntityIdGeneratorTests
     {
         _idGenerator = new EntityIdGenerator();
     }
-    
+
     [Test]
     public void ReturnsNotEmptyString()
     {

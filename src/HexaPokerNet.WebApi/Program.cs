@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Hexagon Poker API",
         Description = "An ASP.NET Core Web API for the Hexagon Poker API"
     });
-    
+
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });

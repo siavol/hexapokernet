@@ -22,7 +22,7 @@ public class NewStoryCommandTests
     public async Task CreateCommand()
     {
         _idGeneratorMock.Setup(idGen => idGen.NewId()).Returns("story1");
-        
+
         var command = new NewStoryCommand("My test command", _repository, _idGeneratorMock.Object);
         var story = await command.Execute();
         Assert.That(story.Title, Is.EqualTo("My test command"));

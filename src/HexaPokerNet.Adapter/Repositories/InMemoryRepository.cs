@@ -4,7 +4,7 @@ using System;
 using Domain;
 using HexaPokerNet.Application.Repositories;
 
-public class InMemoryRepository: IWritableRepository
+public class InMemoryRepository : IWritableRepository
 {
     private readonly List<Story> _stories = new();
 
@@ -15,7 +15,8 @@ public class InMemoryRepository: IWritableRepository
             throw new ArgumentNullException(nameof(story));
         }
 
-        return Task.Run(() => {
+        return Task.Run(() =>
+        {
             _stories.Add(story);
         });
     }

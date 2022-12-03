@@ -22,7 +22,7 @@ public class GetStoryByIdQueryTests
         const string storyId = "id1";
         var existingStory = new Story(storyId, "My test story");
         await _repository.AddStory(existingStory);
-        
+
         var query = new GetStoryByIdQuery(storyId, _repository);
         var story = await query.Query();
         Assert.That(story, Is.SameAs(existingStory));

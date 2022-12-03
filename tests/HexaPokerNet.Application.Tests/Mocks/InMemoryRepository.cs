@@ -6,7 +6,7 @@ using Repositories;
 class InMemoryRepository : IWritableRepository, IReadableRepository
 {
     private readonly Dictionary<string, Story> _storiesStorage = new();
-    
+
     public Task AddStory(Story story)
     {
         if (story == null) throw new ArgumentNullException(nameof(story));

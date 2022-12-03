@@ -36,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
         
+      - name: Verify formatting
+        run: dotnet format --verify-no-changes
+        
       - name: Build
         run: dotnet build
         

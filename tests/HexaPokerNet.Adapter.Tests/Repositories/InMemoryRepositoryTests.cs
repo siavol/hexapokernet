@@ -18,7 +18,7 @@ public class InMemoryRepositoryTests
     [Test]
     public void AddStory()
     {
-        _repository.AddStory(new Story( "story1", "My test story"));
+        _repository.AddStory(new Story("story1", "My test story"));
         Assert.Pass();
     }
 }
