@@ -6,6 +6,7 @@ using HexaPokerNet.Domain;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddJsonConsole();
 
 // Add adapters and services to the container.
 var repository = new InMemoryRepository();
@@ -31,6 +32,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 
