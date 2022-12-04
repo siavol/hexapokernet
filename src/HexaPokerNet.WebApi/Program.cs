@@ -1,18 +1,44 @@
 using System.Reflection;
 using HexaPokerNet.Adapter;
-using HexaPokerNet.Adapter.Repositories;
+using HexaPokerNet.Adapter.Repositories;using HexaPokerNet.Adapter.Repositories.Kafka;
 using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 using Microsoft.OpenApi.Models;
+
+const string writableRepoEnvVar = "HPN_WRITABLE_REPO";
+const string kafkaServerEnvVar = "HPN_KAFKA_SERVER";
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddJsonConsole();
 
 // Add adapters and services to the container.
-var repository = new InMemoryRepository();
+var writableRepositoryName = Environment.GetEnvironmentVariable(writableRepoEnvVar);
+EWritableRepository writableRepositoryKind = EWritableRepository.InMemory;
+if (!string.IsNullOrEmpty(writableRepositoryName))
+{
+    if (!Enum.TryParse(writableRepositoryName, true, out writableRepositoryKind))
+    {
+        throw new ApplicationException(
+            $"Can not parse env variable ${writableRepoEnvVar}, value '${writableRepositoryName}' is unknown");
+    }
+}
+
+var inMemoryRepository = new InMemoryRepository();
+IWritableRepository writableRepository;
+switch (writableRepositoryKind)
+{
+    case EWritableRepository.InMemory:
+        writableRepository = inMemoryRepository;
+        break;
+    case EWritableRepository.Kafka:
+        writableRepository = new KafkaWritableRepository(Environment.GetEnvironmentVariable(kafkaServerEnvVar) ?? "localhost:9092");
+        break;
+    default:
+        throw new ArgumentOutOfRangeException();
+}
 builder.Services
-    .AddSingleton<IWritableRepository>(repository)
-    .AddSingleton<IReadableRepository>(repository)
+    .AddSingleton(writableRepository)
+    .AddSingleton<IReadableRepository>(inMemoryRepository)
     .AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
 
 builder.Services.AddControllers();
