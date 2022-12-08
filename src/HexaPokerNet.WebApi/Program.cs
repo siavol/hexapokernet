@@ -24,24 +24,19 @@ if (!string.IsNullOrEmpty(writableRepositoryName))
 }
 
 var inMemoryRepository = new InMemoryRepository();
-IWritableRepository writableRepository;
 IEventStore eventStore;
 switch (writableRepositoryKind)
 {
     case EWritableRepository.InMemory:
-        writableRepository = inMemoryRepository;
         eventStore = inMemoryRepository;
         break;
     case EWritableRepository.Kafka:
-        var kafkaRepository = new KafkaWritableRepository(Environment.GetEnvironmentVariable(kafkaServerEnvVar) ?? "localhost:9092");
-        writableRepository = kafkaRepository;
-        eventStore = kafkaRepository;
+        eventStore = new KafkaEventStore(Environment.GetEnvironmentVariable(kafkaServerEnvVar) ?? "localhost:9092");
         break;
     default:
         throw new ArgumentOutOfRangeException();
 }
 builder.Services
-    .AddSingleton(writableRepository)
     .AddSingleton(eventStore)
     .AddSingleton<IReadableRepository>(inMemoryRepository)
     .AddSingleton<IEntityIdGenerator, EntityIdGenerator>();

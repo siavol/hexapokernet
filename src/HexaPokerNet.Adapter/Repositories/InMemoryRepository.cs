@@ -6,23 +6,10 @@ using System;
 using Domain;
 using HexaPokerNet.Application.Repositories;
 
-public class InMemoryRepository : IWritableRepository, IEventStore, IEntityEventHandler, IReadableRepository
+public class InMemoryRepository : IEventStore, IEntityEventHandler, IReadableRepository
 {
     private readonly Dictionary<string, Story> _stories = new();
-
-    Task IWritableRepository.AddStory(Story story)
-    {
-        if (story is null)
-        {
-            throw new ArgumentNullException(nameof(story));
-        }
-
-        return Task.Run(() =>
-        {
-            _stories.Add(story.Id, story);
-        });
-    }
-
+    
     public async Task RegisterEvent(IEntityEvent entityEvent)
     {
         if (entityEvent == null) throw new ArgumentNullException(nameof(entityEvent));

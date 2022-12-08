@@ -1,5 +1,5 @@
+using HexaPokerNet.Application.Events;
 using HexaPokerNet.Application.Repositories;
-using HexaPokerNet.Domain;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json.Linq;
 
@@ -42,8 +42,8 @@ public class StoryApiTests
     public async Task GetStoryByIdReturnsOk()
     {
         const string storyId = "story1";
-        var writableRepository = _webApplicationFactory.Services.GetService<IWritableRepository>();
-        await writableRepository!.AddStory(new Story(storyId, "My test story"));
+        var eventStore = _webApplicationFactory.Services.GetService<IEventStore>();
+        await eventStore!.RegisterEvent(new StoryAddedEvent(storyId, "My test story"));
 
         var response = await _client.GetAsync($"story/{storyId}");
         response.EnsureSuccessStatusCode();
