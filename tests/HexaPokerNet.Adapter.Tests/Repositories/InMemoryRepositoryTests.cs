@@ -1,4 +1,5 @@
 using HexaPokerNet.Adapter.Repositories;
+using HexaPokerNet.Application.Events;
 using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 
@@ -7,7 +8,7 @@ namespace HexaPokerNet.Adapter.Tests.Repositories;
 [TestFixture]
 public class InMemoryRepositoryTests
 {
-    private IWritableRepository _repository = null!;
+    private InMemoryRepository _repository = null!;
 
     [SetUp]
     public void Setup()
@@ -16,9 +17,16 @@ public class InMemoryRepositoryTests
     }
 
     [Test]
-    public void AddStory()
+    public async Task StoryAddedEvent()
     {
-        _repository.AddStory(new Story("story1", "My test story"));
-        Assert.Pass();
+        var storyAddedEvent = new StoryAddedEvent("story1", "My test story");
+        _repository.RegisterEvent(storyAddedEvent);
+
+        var storyFromRepo = await _repository.GetStoryById("story1");
+        Assert.Multiple(() =>
+        {
+            Assert.That(storyFromRepo.Id, Is.EqualTo("story1"));
+            Assert.That(storyFromRepo.Title, Is.EqualTo("My test story"));
+        });
     }
 }

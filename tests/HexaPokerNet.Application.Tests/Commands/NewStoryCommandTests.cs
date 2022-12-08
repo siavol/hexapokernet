@@ -1,4 +1,5 @@
 using HexaPokerNet.Application.Commands;
+using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Application.Tests.Mocks;
 using HexaPokerNet.Domain;
 using Moq;
@@ -10,12 +11,14 @@ public class NewStoryCommandTests
 {
     private InMemoryRepository _repository = null!;
     private Mock<IEntityIdGenerator> _idGeneratorMock = null!;
+    private Mock<IEventStore> _eventStore = null;
 
     [SetUp]
     public void Setup()
     {
         _repository = new InMemoryRepository();
         _idGeneratorMock = new Mock<IEntityIdGenerator>();
+        _eventStore = new Mock<IEventStore>();
     }
 
     [Test]
@@ -23,9 +26,8 @@ public class NewStoryCommandTests
     {
         _idGeneratorMock.Setup(idGen => idGen.NewId()).Returns("story1");
 
-        var command = new NewStoryCommand("My test command", _repository, _idGeneratorMock.Object);
-        var story = await command.Execute();
-        Assert.That(story.Title, Is.EqualTo("My test command"));
-        Assert.That(story.Id, Is.EqualTo("story1"));
+        var command = new NewStoryCommand("My test command", _eventStore.Object, _idGeneratorMock.Object);
+        var storyId = await command.Execute();
+        Assert.That(storyId, Is.EqualTo("story1"));
     }
 }

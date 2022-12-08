@@ -1,11 +1,12 @@
 ﻿using Confluent.Kafka;
+using HexaPokerNet.Application.Events;
 using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 using Newtonsoft.Json;
 
 namespace HexaPokerNet.Adapter.Repositories.Kafka;
 
-public class KafkaWritableRepository: IWritableRepository
+public class KafkaWritableRepository: IWritableRepository, IEventStore
 {
     private readonly ProducerBuilder<string,string> _producerBuilder;
 
@@ -29,5 +30,10 @@ public class KafkaWritableRepository: IWritableRepository
                 new Message<string, string> { Key = story.Id, Value = storyJson }
             );
         }
+    }
+
+    public Task RegisterEvent(IEntityEvent entityEvent)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -35,7 +35,6 @@ public class StoryApiTests
         var body = await response.Content.ReadAsStringAsync();
         var jsonBody = JToken.Parse(body);
 
-        Assert.That(jsonBody["title"].Value<string>(), Is.EqualTo("My test story"));
         Assert.That(jsonBody["id"].Value<string>(), Is.Not.Empty);
     }
 

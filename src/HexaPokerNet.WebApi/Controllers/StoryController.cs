@@ -17,18 +17,21 @@ public class StoryController : Controller
     /// Creates a new Story.
     /// </summary>
     /// <param name="parameters"></param>
-    /// <param name="writableRepository"></param>
+    /// <param name="eventStore"></param>
     /// <param name="idGenerator"></param>
     /// <returns>A newly created Story.</returns>
     [HttpPost]
     public async Task<IActionResult> Add(
         [FromBody] AddStoryParameters parameters,
-        [FromServices] IWritableRepository writableRepository,
+        [FromServices] IEventStore eventStore,
         [FromServices] IEntityIdGenerator idGenerator)
     {
-        var command = new NewStoryCommand(parameters.Title, writableRepository, idGenerator);
-        var story = await command.Execute();
-        return Ok(story);
+        var command = new NewStoryCommand(parameters.Title, eventStore, idGenerator);
+        var storyId = await command.Execute();
+        return Ok(new 
+        {
+            id = storyId
+        });
     }
 
     /// <summary>
