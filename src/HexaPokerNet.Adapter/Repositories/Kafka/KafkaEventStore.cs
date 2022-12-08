@@ -27,12 +27,7 @@ public class KafkaEventStore: IEventStore
         var eventJson = EntityEventSerializer.Serialize(entityEvent);
         using var producer = _producerBuilder.Build();
         await producer.ProduceAsync(_entityEventsTopic,
-            new Message<string, string> { Key = GetEventId(entityEvent), Value = eventJson }
+            new Message<string, string> { Key = entityEvent.EntityKey, Value = eventJson }
         );
-    }
-
-    private string GetEventId(IEntityEvent entityEvent)
-    {
-        return new Guid().ToString("N");
     }
 }
