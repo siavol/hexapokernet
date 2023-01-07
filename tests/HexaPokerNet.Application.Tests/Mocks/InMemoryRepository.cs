@@ -3,7 +3,7 @@ namespace HexaPokerNet.Application.Tests.Mocks;
 using Domain;
 using Repositories;
 
-class InMemoryRepository : IWritableRepository, IReadableRepository
+class InMemoryRepository : IReadableRepository
 {
     private readonly Dictionary<string, Story> _storiesStorage = new();
 
