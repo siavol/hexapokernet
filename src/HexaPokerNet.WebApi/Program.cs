@@ -1,6 +1,7 @@
 using System.Reflection;
 using HexaPokerNet.Adapter;
-using HexaPokerNet.Adapter.Repositories;using HexaPokerNet.Adapter.Repositories.Kafka;
+using HexaPokerNet.Adapter.Repositories;
+using HexaPokerNet.Adapter.Repositories.Kafka;
 using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 using Microsoft.OpenApi.Models;

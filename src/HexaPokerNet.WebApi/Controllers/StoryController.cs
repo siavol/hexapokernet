@@ -28,7 +28,7 @@ public class StoryController : Controller
     {
         var command = new NewStoryCommand(parameters.Title, eventStore, idGenerator);
         var storyId = await command.Execute();
-        return Ok(new 
+        return Ok(new
         {
             id = storyId
         });

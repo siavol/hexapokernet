@@ -9,11 +9,11 @@ using HexaPokerNet.Application.Repositories;
 public class InMemoryRepository : IEventStore, IEntityEventHandler, IReadableRepository
 {
     private readonly Dictionary<string, Story> _stories = new();
-    
+
     public async Task RegisterEvent(IEntityEvent entityEvent)
     {
         if (entityEvent == null) throw new ArgumentNullException(nameof(entityEvent));
-        await this.HandleEvent((dynamic) entityEvent);
+        await this.HandleEvent((dynamic)entityEvent);
     }
 
     public Task<Story> GetStoryById(string storyId)

@@ -20,14 +20,14 @@ public class EntityEventSerializerTests
     {
         var json = "{\"$type\":\"StoryAddedEvent\",\"StoryId\":\"story1\",\"StoryTitle\":\"My test story\"}";
         var story = EntityEventSerializer.Deserialize<StoryAddedEvent>(json);
-        
+
         Assert.True(story is
         {
             StoryId: "story1",
             StoryTitle: "My test story"
         });
     }
-    
+
     [Test]
     public void Deserialize_ReturnsGeneralEntityEvent()
     {

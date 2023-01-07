@@ -5,7 +5,7 @@ using HexaPokerNet.Domain;
 
 namespace HexaPokerNet.Adapter.Repositories.Kafka;
 
-public class KafkaReadableRepository: IReadableRepository, IDisposable
+public class KafkaReadableRepository : IReadableRepository, IDisposable
 {
     private readonly Dictionary<string, Story> _stories = new();
     private readonly IConsumer<string, string> _consumer;
@@ -28,7 +28,7 @@ public class KafkaReadableRepository: IReadableRepository, IDisposable
             .Build();
         RunConsumerTask();
     }
-    
+
     public Task<Story> GetStoryById(string storyId)
     {
         if (!_stories.TryGetValue(storyId, out var story))
@@ -59,7 +59,7 @@ public class KafkaReadableRepository: IReadableRepository, IDisposable
             }
         });
     }
-    
+
     public void Dispose()
     {
         _consumer.Dispose();
