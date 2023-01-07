@@ -50,7 +50,7 @@ public class StoryController : Controller
             var story = await readableRepository.GetStoryById(storyId);
             return new OkObjectResult(story);
         }
-        catch (EntityNotFoundException e)
+        catch (EntityNotFoundException)
         {
             return new NotFoundResult();
         }

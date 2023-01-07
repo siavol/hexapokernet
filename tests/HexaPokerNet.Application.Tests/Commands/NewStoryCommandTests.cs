@@ -9,14 +9,12 @@ namespace HexaPokerNet.Application.Tests.Commands;
 [TestFixture]
 public class NewStoryCommandTests
 {
-    private InMemoryRepository _repository = null!;
     private Mock<IEntityIdGenerator> _idGeneratorMock = null!;
-    private Mock<IEventStore> _eventStore = null;
+    private Mock<IEventStore>? _eventStore = null;
 
     [SetUp]
     public void Setup()
     {
-        _repository = new InMemoryRepository();
         _idGeneratorMock = new Mock<IEntityIdGenerator>();
         _eventStore = new Mock<IEventStore>();
     }
@@ -26,7 +24,7 @@ public class NewStoryCommandTests
     {
         _idGeneratorMock.Setup(idGen => idGen.NewId()).Returns("story1");
 
-        var command = new NewStoryCommand("My test command", _eventStore.Object, _idGeneratorMock.Object);
+        var command = new NewStoryCommand("My test command", _eventStore!.Object, _idGeneratorMock.Object);
         var storyId = await command.Execute();
         Assert.That(storyId, Is.EqualTo("story1"));
     }

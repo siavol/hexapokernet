@@ -1,8 +1,6 @@
 ﻿using Confluent.Kafka;
 using HexaPokerNet.Application.Events;
 using HexaPokerNet.Application.Repositories;
-using HexaPokerNet.Domain;
-using Newtonsoft.Json;
 
 namespace HexaPokerNet.Adapter.Repositories.Kafka;
 
@@ -13,11 +11,12 @@ public class KafkaEventStore: IEventStore
 
     public KafkaEventStore(string kafkaServer)
     {
-        Dictionary<string, string> kafkaConfig = new()
+        var producerConfig = new ProducerConfig
         {
-            { "bootstrap.servers", kafkaServer }
+            BootstrapServers = kafkaServer,
+            EnableDeliveryReports = true
         };
-        _producerBuilder = new ProducerBuilder<string, string>(kafkaConfig);
+        _producerBuilder = new ProducerBuilder<string, string>(producerConfig);
     }
     
     public async Task RegisterEvent(IEntityEvent entityEvent)

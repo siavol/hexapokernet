@@ -9,7 +9,6 @@ const string writableRepoEnvVar = "HPN_WRITABLE_REPO";
 const string kafkaServerEnvVar = "HPN_KAFKA_SERVER";
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.AddJsonConsole();
 
 // Add adapters and services to the container.
 var writableRepositoryName = Environment.GetEnvironmentVariable(writableRepoEnvVar);
@@ -23,22 +22,26 @@ if (!string.IsNullOrEmpty(writableRepositoryName))
     }
 }
 
-var inMemoryRepository = new InMemoryRepository();
+IReadableRepository readableRepository;
 IEventStore eventStore;
 switch (writableRepositoryKind)
 {
     case EWritableRepository.InMemory:
+        var inMemoryRepository = new InMemoryRepository();
+        readableRepository = inMemoryRepository;
         eventStore = inMemoryRepository;
         break;
     case EWritableRepository.Kafka:
-        eventStore = new KafkaEventStore(Environment.GetEnvironmentVariable(kafkaServerEnvVar) ?? "localhost:9092");
+        var kafkaServer = Environment.GetEnvironmentVariable(kafkaServerEnvVar) ?? "localhost:9092";
+        eventStore = new KafkaEventStore(kafkaServer);
+        readableRepository = new KafkaReadableRepository(kafkaServer);
         break;
     default:
         throw new ArgumentOutOfRangeException();
 }
 builder.Services
     .AddSingleton(eventStore)
-    .AddSingleton<IReadableRepository>(inMemoryRepository)
+    .AddSingleton(readableRepository)
     .AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
 
 builder.Services.AddControllers();

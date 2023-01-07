@@ -1,7 +1,5 @@
 using HexaPokerNet.Adapter.Repositories;
 using HexaPokerNet.Application.Events;
-using HexaPokerNet.Application.Repositories;
-using HexaPokerNet.Domain;
 
 namespace HexaPokerNet.Adapter.Tests.Repositories;
 
@@ -20,7 +18,7 @@ public class InMemoryRepositoryTests
     public async Task StoryAddedEvent()
     {
         var storyAddedEvent = new StoryAddedEvent("story1", "My test story");
-        _repository.RegisterEvent(storyAddedEvent);
+        await _repository.RegisterEvent(storyAddedEvent);
 
         var storyFromRepo = await _repository.GetStoryById("story1");
         Assert.Multiple(() =>

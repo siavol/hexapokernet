@@ -1,3 +1,5 @@
+using HexaPokerNet.Domain;
+
 namespace HexaPokerNet.Application.Events;
 
 public class StoryAddedEvent : IEntityEvent
@@ -11,5 +13,10 @@ public class StoryAddedEvent : IEntityEvent
     {
         StoryId = storyId;
         StoryTitle = storyTitle;
+    }
+
+    public Story GetEntity()
+    {
+        return new Story(StoryId, StoryTitle);
     }
 }
