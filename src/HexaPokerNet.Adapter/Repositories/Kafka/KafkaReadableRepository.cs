@@ -16,7 +16,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
     public KafkaReadableRepository(IKafkaConfiguration configuration, ILogger<KafkaReadableRepository> logger)
     {
         _logger = logger;
-        
+
         var consumerId = Guid.NewGuid();
         var consumerConfig = new ConsumerConfig
         {

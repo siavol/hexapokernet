@@ -28,7 +28,7 @@ public static class EntityEventSerializer
             throw new InvalidOperationException("Can not deserialize JSON");
         }
     }
-    
+
     private static JsonSerializerSettings GetJsonSerializerSettings<T>() where T : IEntityEvent
     {
         var settings = new JsonSerializerSettings

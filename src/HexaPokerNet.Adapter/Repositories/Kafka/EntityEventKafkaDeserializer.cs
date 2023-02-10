@@ -4,7 +4,7 @@ using HexaPokerNet.Application.Events;
 
 namespace HexaPokerNet.Adapter.Repositories.Kafka;
 
-internal class EntityEventKafkaDeserializer: IDeserializer<IEntityEvent>
+internal class EntityEventKafkaDeserializer : IDeserializer<IEntityEvent>
 {
     public IEntityEvent Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context)
     {
