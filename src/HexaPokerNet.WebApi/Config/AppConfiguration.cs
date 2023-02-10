@@ -15,7 +15,7 @@ public class AppConfiguration : IKafkaConfiguration
             if (String.IsNullOrEmpty(repositoryName)) return EWritableRepository.InMemory;
             if (Enum.TryParse(repositoryName, true, out EWritableRepository repositoryKind)) return repositoryKind;
             throw new ApplicationException(
-                $"Can not parse env variable ${AppEnvironmentVariables.WritableRepoEnvVar}, value '${repositoryName}' is unknown");
+                $"Can not parse env variable {AppEnvironmentVariables.WritableRepoEnvVar}, value '{repositoryName}' is unknown");
         }
     }
 }
