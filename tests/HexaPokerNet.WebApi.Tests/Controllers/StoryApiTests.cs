@@ -3,7 +3,7 @@ using HexaPokerNet.Application.Repositories;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json.Linq;
 
-namespace HexaPokerNet.WebApi.Tests;
+namespace HexaPokerNet.WebApi.Tests.Controllers;
 
 [TestFixture]
 public class StoryApiTests

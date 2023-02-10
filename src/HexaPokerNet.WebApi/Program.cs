@@ -6,42 +6,11 @@ using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 using Microsoft.OpenApi.Models;
 
-const string writableRepoEnvVar = "HPN_WRITABLE_REPO";
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add adapters and services to the container.
-var writableRepositoryName = Environment.GetEnvironmentVariable(writableRepoEnvVar);
-var writableRepositoryKind = EWritableRepository.InMemory;
-if (!string.IsNullOrEmpty(writableRepositoryName))
-{
-    if (!Enum.TryParse(writableRepositoryName, true, out writableRepositoryKind))
-    {
-        throw new ApplicationException(
-            $"Can not parse env variable ${writableRepoEnvVar}, value '${writableRepositoryName}' is unknown");
-    }
-}
-
-switch (writableRepositoryKind)
-{
-    case EWritableRepository.InMemory:
-        var inMemoryRepository = new InMemoryRepository();
-        builder.Services
-            .AddSingleton<IEventStore>(inMemoryRepository)
-            .AddSingleton<IReadableRepository>(inMemoryRepository);
-        break;
-    case EWritableRepository.Kafka:
-        builder.Services
-            .AddTransient<IKafkaConfiguration, EnvironmentVariablesKafkaConfiguration>()
-            .AddSingleton<IEventStore, KafkaEventStore>()
-            .AddSingleton<IReadableRepository, KafkaReadableRepository>();
-        break;
-    default:
-        throw new ArgumentOutOfRangeException();
-}
-builder.Services.AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
-
+AddRepositoryServices(builder);
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -77,6 +46,31 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+void AddRepositoryServices(WebApplicationBuilder webApplicationBuilder)
+{
+    var config = new AppConfiguration();
+    switch (config.RepositoryKind)
+    {
+        case EWritableRepository.InMemory:
+            var inMemoryRepository = new InMemoryRepository();
+            webApplicationBuilder.Services
+                .AddSingleton<IEventStore>(inMemoryRepository)
+                .AddSingleton<IReadableRepository>(inMemoryRepository);
+            break;
+        case EWritableRepository.Kafka:
+            webApplicationBuilder.Services
+                .AddTransient<IKafkaConfiguration, AppConfiguration>()
+                .AddSingleton<IEventStore, KafkaEventStore>()
+                .AddSingleton<IReadableRepository, KafkaReadableRepository>();
+            break;
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+
+    webApplicationBuilder.Services.AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
+}
 
 
 /// <summary>
