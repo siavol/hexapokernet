@@ -7,7 +7,6 @@ using HexaPokerNet.Domain;
 using Microsoft.OpenApi.Models;
 
 const string writableRepoEnvVar = "HPN_WRITABLE_REPO";
-const string kafkaServerEnvVar = "HPN_KAFKA_SERVER";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,27 +22,24 @@ if (!string.IsNullOrEmpty(writableRepositoryName))
     }
 }
 
-IReadableRepository readableRepository;
-IEventStore eventStore;
 switch (writableRepositoryKind)
 {
     case EWritableRepository.InMemory:
         var inMemoryRepository = new InMemoryRepository();
-        readableRepository = inMemoryRepository;
-        eventStore = inMemoryRepository;
+        builder.Services
+            .AddSingleton<IEventStore>(inMemoryRepository)
+            .AddSingleton<IReadableRepository>(inMemoryRepository);
         break;
     case EWritableRepository.Kafka:
-        var kafkaServer = Environment.GetEnvironmentVariable(kafkaServerEnvVar) ?? "localhost:9092";
-        eventStore = new KafkaEventStore(kafkaServer);
-        readableRepository = new KafkaReadableRepository(kafkaServer);
+        builder.Services
+            .AddTransient<IKafkaConfiguration, EnvironmentVariablesKafkaConfiguration>()
+            .AddSingleton<IEventStore, KafkaEventStore>()
+            .AddSingleton<IReadableRepository, KafkaReadableRepository>();
         break;
     default:
         throw new ArgumentOutOfRangeException();
 }
-builder.Services
-    .AddSingleton(eventStore)
-    .AddSingleton(readableRepository)
-    .AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
+builder.Services.AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -62,6 +58,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+app.Services.GetRequiredService<IReadableRepository>().Start();
+
 app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.

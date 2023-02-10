@@ -16,6 +16,10 @@ public class InMemoryRepository : IEventStore, IEntityEventHandler, IReadableRep
         await this.HandleEvent((dynamic)entityEvent);
     }
 
+    public void Start()
+    {
+    }
+
     public Task<Story> GetStoryById(string storyId)
     {
         if (!_stories.TryGetValue(storyId, out var story))

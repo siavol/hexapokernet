@@ -2,22 +2,27 @@ using Confluent.Kafka;
 using HexaPokerNet.Application.Events;
 using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
+using Microsoft.Extensions.Logging;
 
 namespace HexaPokerNet.Adapter.Repositories.Kafka;
 
 public class KafkaReadableRepository : IReadableRepository, IDisposable
 {
+    private readonly ILogger<KafkaReadableRepository> _logger;
     private readonly Dictionary<string, Story> _stories = new();
     private readonly IConsumer<string, IEntityEvent> _consumer;
     private readonly CancellationTokenSource _consumerTaskCancellationTokenSource = new();
-    private Task? _consumerTask;
 
-    public KafkaReadableRepository(string kafkaServer)
+    public KafkaReadableRepository(IKafkaConfiguration configuration, ILogger<KafkaReadableRepository> logger)
     {
-        var consumerConfig = new ConsumerConfig()
+        _logger = logger;
+        
+        var consumerId = Guid.NewGuid();
+        var consumerConfig = new ConsumerConfig
         {
-            BootstrapServers = kafkaServer,
-            GroupId = $"hexapokernet{new Guid()}",
+            BootstrapServers = configuration.KafkaServer,
+            GroupId = $"hexapokernet-{consumerId}",
+            ClientId = $"hexapokernet-read-repo-{consumerId}",
             AutoOffsetReset = AutoOffsetReset.Earliest
         };
 
@@ -25,7 +30,6 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
             .SetErrorHandler((_, err) => Console.WriteLine(err))
             .SetValueDeserializer(new EntityEventKafkaDeserializer())
             .Build();
-        RunConsumerTask();
     }
 
     public Task<Story> GetStoryById(string storyId)
@@ -38,9 +42,9 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         return Task.FromResult(story);
     }
 
-    private void RunConsumerTask()
+    public void Start()
     {
-        _consumerTask = Task.Run(() =>
+        Task.Run(() =>
         {
             _consumer.Subscribe("entityEvents");
             try
@@ -51,13 +55,14 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
                     var entityEvent = result?.Message?.Value;
                     if (entityEvent is StoryAddedEvent storyAdded)
                     {
+                        _logger.LogInformation("Consumed a Story Added event from Kafka: {0}", storyAdded.StoryId);
                         _stories.Add(storyAdded.StoryId, storyAdded.GetEntity());
                     }
                 }
             }
             catch (OperationCanceledException)
             {
-                // TODO: add logging. For now we can just skip it.
+                _logger.LogWarning("Kafka consumer task is stopped.");
             }
         });
     }
@@ -67,6 +72,5 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         _consumer.Dispose();
         _consumerTaskCancellationTokenSource.Cancel();
         _consumerTaskCancellationTokenSource.Dispose();
-        _consumerTask?.Dispose();
     }
 }

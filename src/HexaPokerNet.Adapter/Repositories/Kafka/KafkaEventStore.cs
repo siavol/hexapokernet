@@ -9,11 +9,11 @@ public class KafkaEventStore : IEventStore
     private const string _entityEventsTopic = "entityEvents";
     private readonly ProducerBuilder<string, string> _producerBuilder;
 
-    public KafkaEventStore(string kafkaServer)
+    public KafkaEventStore(IKafkaConfiguration configuration)
     {
         var producerConfig = new ProducerConfig
         {
-            BootstrapServers = kafkaServer,
+            BootstrapServers = configuration.KafkaServer,
             EnableDeliveryReports = true
         };
         _producerBuilder = new ProducerBuilder<string, string>(producerConfig);

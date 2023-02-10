@@ -14,6 +14,10 @@ class InMemoryRepository : IReadableRepository
         return Task.CompletedTask;
     }
 
+    public void Start()
+    {
+    }
+
     public Task<Story> GetStoryById(string storyId)
     {
         if (!_storiesStorage.ContainsKey(storyId))
