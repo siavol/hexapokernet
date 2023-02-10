@@ -1,21 +1,16 @@
 using System.Reflection;
 using HexaPokerNet.Adapter;
 using HexaPokerNet.Adapter.Repositories;
+using HexaPokerNet.Adapter.Repositories.Kafka;
 using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 using Microsoft.OpenApi.Models;
 
+
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.AddJsonConsole();
-
-// Add adapters and services to the container.
-var repository = new InMemoryRepository();
-builder.Services
-    .AddSingleton<IWritableRepository>(repository)
-    .AddSingleton<IReadableRepository>(repository)
-    .AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
-
+AddRepositoryServices(builder);
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -32,6 +27,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+app.Services.GetRequiredService<IReadableRepository>().Start();
+
 app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
@@ -49,6 +46,31 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+void AddRepositoryServices(WebApplicationBuilder webApplicationBuilder)
+{
+    var config = new AppConfiguration();
+    switch (config.RepositoryKind)
+    {
+        case EWritableRepository.InMemory:
+            var inMemoryRepository = new InMemoryRepository();
+            webApplicationBuilder.Services
+                .AddSingleton<IEventStore>(inMemoryRepository)
+                .AddSingleton<IReadableRepository>(inMemoryRepository);
+            break;
+        case EWritableRepository.Kafka:
+            webApplicationBuilder.Services
+                .AddTransient<IKafkaConfiguration, AppConfiguration>()
+                .AddSingleton<IEventStore, KafkaEventStore>()
+                .AddSingleton<IReadableRepository, KafkaReadableRepository>();
+            break;
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+
+    webApplicationBuilder.Services.AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
+}
 
 
 /// <summary>

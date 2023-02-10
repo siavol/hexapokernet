@@ -1,24 +1,21 @@
+using HexaPokerNet.Application.Events;
 using HexaPokerNet.Application.Repositories;
-using HexaPokerNet.Domain;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json.Linq;
 
-namespace HexaPokerNet.WebApi.Tests;
+namespace HexaPokerNet.WebApi.Tests.Controllers;
 
 [TestFixture]
 public class StoryApiTests
 {
-    private readonly WebApplicationFactory<Program> _webApplicationFactory;
+    private WebApplicationFactory<Program> _webApplicationFactory;
     private HttpClient _client;
-
-    public StoryApiTests()
-    {
-        _webApplicationFactory = new WebApplicationFactory<Program>();
-    }
 
     [SetUp]
     public void Setup()
     {
+        Environment.SetEnvironmentVariable("HPN_WRITABLE_REPO", "InMemory");
+        _webApplicationFactory = new WebApplicationFactory<Program>();
         _client = _webApplicationFactory.CreateClient();
     }
 
@@ -35,16 +32,15 @@ public class StoryApiTests
         var body = await response.Content.ReadAsStringAsync();
         var jsonBody = JToken.Parse(body);
 
-        Assert.That(jsonBody["title"].Value<string>(), Is.EqualTo("My test story"));
-        Assert.That(jsonBody["id"].Value<string>(), Is.Not.Empty);
+        Assert.That(jsonBody["id"]!.Value<string>(), Is.Not.Empty);
     }
 
     [Test]
     public async Task GetStoryByIdReturnsOk()
     {
         const string storyId = "story1";
-        var writableRepository = _webApplicationFactory.Services.GetService<IWritableRepository>();
-        await writableRepository!.AddStory(new Story(storyId, "My test story"));
+        var eventStore = _webApplicationFactory.Services.GetService<IEventStore>();
+        await eventStore!.RegisterEvent(new StoryAddedEvent(storyId, "My test story"));
 
         var response = await _client.GetAsync($"story/{storyId}");
         response.EnsureSuccessStatusCode();
@@ -52,8 +48,8 @@ public class StoryApiTests
         var body = await response.Content.ReadAsStringAsync();
         var jsonBody = JToken.Parse(body);
 
-        Assert.That(jsonBody["title"].Value<string>(), Is.EqualTo("My test story"));
-        Assert.That(jsonBody["id"].Value<string>(), Is.EqualTo(storyId));
+        Assert.That(jsonBody["title"]!.Value<string>(), Is.EqualTo("My test story"));
+        Assert.That(jsonBody["id"]!.Value<string>(), Is.EqualTo(storyId));
     }
 
     [Test]

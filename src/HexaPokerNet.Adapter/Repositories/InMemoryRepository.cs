@@ -1,27 +1,26 @@
+using HexaPokerNet.Application.Events;
+
 namespace HexaPokerNet.Adapter.Repositories;
 
 using System;
 using Domain;
 using HexaPokerNet.Application.Repositories;
 
-public class InMemoryRepository : IWritableRepository, IReadableRepository
+public class InMemoryRepository : IEventStore, IEntityEventHandler, IReadableRepository
 {
     private readonly Dictionary<string, Story> _stories = new();
 
-    Task IWritableRepository.AddStory(Story story)
+    public async Task RegisterEvent(IEntityEvent entityEvent)
     {
-        if (story is null)
-        {
-            throw new ArgumentNullException(nameof(story));
-        }
-
-        return Task.Run(() =>
-        {
-            _stories.Add(story.Id, story);
-        });
+        if (entityEvent == null) throw new ArgumentNullException(nameof(entityEvent));
+        await this.HandleEvent((dynamic)entityEvent);
     }
 
-    Task<Story> IReadableRepository.GetStoryById(string storyId)
+    public void Start()
+    {
+    }
+
+    public Task<Story> GetStoryById(string storyId)
     {
         if (!_stories.TryGetValue(storyId, out var story))
         {
@@ -29,5 +28,14 @@ public class InMemoryRepository : IWritableRepository, IReadableRepository
         }
 
         return Task.FromResult(story);
+    }
+
+    public Task HandleEvent(StoryAddedEvent entityEvent)
+    {
+        if (entityEvent == null) throw new ArgumentNullException(nameof(entityEvent));
+
+        var story = new Story(entityEvent.StoryId, entityEvent.StoryTitle);
+        _stories.Add(story.Id, story);
+        return Task.CompletedTask;
     }
 }
