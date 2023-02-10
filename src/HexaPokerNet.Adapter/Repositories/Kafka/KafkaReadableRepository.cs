@@ -31,7 +31,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
             .SetErrorHandler((_, err) => Console.WriteLine(err))
             .SetValueDeserializer(new EntityEventKafkaDeserializer())
             .Build();
-        
+
         _logger.LogDebug("Kafka readable repository created for {0}", configuration.KafkaServer);
     }
 

@@ -36,7 +36,7 @@ public class AppConfigurationTests
         var config = new AppConfiguration();
         Assert.That(config.KafkaServer, Is.EqualTo("localhost:9092"));
     }
-    
+
     [Test]
     public void KafkaServer_Returns_Value_WhenEnvVariableIsSet()
     {

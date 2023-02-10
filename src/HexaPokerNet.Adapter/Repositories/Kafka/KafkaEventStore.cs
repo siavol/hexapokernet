@@ -17,7 +17,7 @@ public class KafkaEventStore : IEventStore
             EnableDeliveryReports = true
         };
         _producerBuilder = new ProducerBuilder<string, string>(producerConfig);
-        
+
         logger.LogDebug("Kafka event store created for {0}", configuration.KafkaServer);
     }
 

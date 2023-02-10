@@ -4,10 +4,11 @@ using HexaPokerNet.Adapter.Repositories.Kafka;
 public class AppConfiguration : IKafkaConfiguration
 {
     private const string DefaultKafkaServer = "localhost:9092";
-    
+
     public string KafkaServer => Environment.GetEnvironmentVariable(AppEnvironmentVariables.KafkaServer) ?? DefaultKafkaServer;
 
-    public EWritableRepository RepositoryKind {
+    public EWritableRepository RepositoryKind
+    {
         get
         {
             var repositoryName = Environment.GetEnvironmentVariable(AppEnvironmentVariables.WritableRepoEnvVar);
