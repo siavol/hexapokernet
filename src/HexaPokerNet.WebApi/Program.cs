@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add adapters and services to the container.
 var writableRepositoryName = Environment.GetEnvironmentVariable(writableRepoEnvVar);
-EWritableRepository writableRepositoryKind = EWritableRepository.InMemory;
+var writableRepositoryKind = EWritableRepository.InMemory;
 if (!string.IsNullOrEmpty(writableRepositoryName))
 {
     if (!Enum.TryParse(writableRepositoryName, true, out writableRepositoryKind))

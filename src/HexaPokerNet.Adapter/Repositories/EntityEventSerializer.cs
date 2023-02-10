@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Confluent.Kafka;
 using HexaPokerNet.Application.Events;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -27,7 +28,7 @@ public static class EntityEventSerializer
             throw new InvalidOperationException("Can not deserialize JSON");
         }
     }
-
+    
     private static JsonSerializerSettings GetJsonSerializerSettings<T>() where T : IEntityEvent
     {
         var settings = new JsonSerializerSettings

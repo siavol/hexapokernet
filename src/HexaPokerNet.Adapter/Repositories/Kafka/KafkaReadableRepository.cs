@@ -8,7 +8,7 @@ namespace HexaPokerNet.Adapter.Repositories.Kafka;
 public class KafkaReadableRepository : IReadableRepository, IDisposable
 {
     private readonly Dictionary<string, Story> _stories = new();
-    private readonly IConsumer<string, string> _consumer;
+    private readonly IConsumer<string, IEntityEvent> _consumer;
     private readonly CancellationTokenSource _consumerTaskCancellationTokenSource = new();
     private Task? _consumerTask;
 
@@ -17,14 +17,13 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         var consumerConfig = new ConsumerConfig()
         {
             BootstrapServers = kafkaServer,
-            GroupId = "hexapokernet",
-            EnableAutoCommit = true,
-            EnableAutoOffsetStore = true,
+            GroupId = $"hexapokernet{new Guid()}",
             AutoOffsetReset = AutoOffsetReset.Earliest
         };
 
-        _consumer = new ConsumerBuilder<string, string>(consumerConfig)
+        _consumer = new ConsumerBuilder<string, IEntityEvent>(consumerConfig)
             .SetErrorHandler((_, err) => Console.WriteLine(err))
+            .SetValueDeserializer(new EntityEventKafkaDeserializer())
             .Build();
         RunConsumerTask();
     }
@@ -44,18 +43,21 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         _consumerTask = Task.Run(() =>
         {
             _consumer.Subscribe("entityEvents");
-            while (!_consumerTaskCancellationTokenSource.IsCancellationRequested)
+            try
             {
-                var result = _consumer.Consume();
-                var message = result?.Message;
-                if (message != null)
+                while (true)
                 {
-                    var entityEvent = EntityEventSerializer.Deserialize<IEntityEvent>(message.Value);
+                    var result = _consumer.Consume(_consumerTaskCancellationTokenSource.Token);
+                    var entityEvent = result?.Message?.Value;
                     if (entityEvent is StoryAddedEvent storyAdded)
                     {
                         _stories.Add(storyAdded.StoryId, storyAdded.GetEntity());
                     }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                // TODO: add logging. For now we can just skip it.
             }
         });
     }
@@ -63,6 +65,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
     public void Dispose()
     {
         _consumer.Dispose();
+        _consumerTaskCancellationTokenSource.Cancel();
         _consumerTaskCancellationTokenSource.Dispose();
         _consumerTask?.Dispose();
     }
