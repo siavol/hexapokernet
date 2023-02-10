@@ -28,4 +28,20 @@ public class AppConfigurationTests
         var config = new AppConfiguration();
         Assert.That(() => config.RepositoryKind, Throws.Exception);
     }
+
+    [Test]
+    public void KafkaServer_Returns_Default_WhenEnvVariableIsNotSet()
+    {
+        Environment.SetEnvironmentVariable("HPN_KAFKA_SERVER", null);
+        var config = new AppConfiguration();
+        Assert.That(config.KafkaServer, Is.EqualTo("localhost:9092"));
+    }
+    
+    [Test]
+    public void KafkaServer_Returns_Value_WhenEnvVariableIsSet()
+    {
+        Environment.SetEnvironmentVariable("HPN_KAFKA_SERVER", "broker:9092");
+        var config = new AppConfiguration();
+        Assert.That(config.KafkaServer, Is.EqualTo("broker:9092"));
+    }
 }

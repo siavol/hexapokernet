@@ -1,6 +1,7 @@
 ﻿using Confluent.Kafka;
 using HexaPokerNet.Application.Events;
 using HexaPokerNet.Application.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace HexaPokerNet.Adapter.Repositories.Kafka;
 
@@ -8,7 +9,7 @@ public class KafkaEventStore : IEventStore
 {
     private readonly ProducerBuilder<string, string> _producerBuilder;
 
-    public KafkaEventStore(IKafkaConfiguration configuration)
+    public KafkaEventStore(IKafkaConfiguration configuration, ILogger<KafkaEventStore> logger)
     {
         var producerConfig = new ProducerConfig
         {
@@ -16,6 +17,8 @@ public class KafkaEventStore : IEventStore
             EnableDeliveryReports = true
         };
         _producerBuilder = new ProducerBuilder<string, string>(producerConfig);
+        
+        logger.LogDebug("Kafka event store created for {0}", configuration.KafkaServer);
     }
 
     public async Task RegisterEvent(IEntityEvent entityEvent)
