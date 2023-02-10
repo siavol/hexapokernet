@@ -6,7 +6,6 @@ namespace HexaPokerNet.Adapter.Repositories.Kafka;
 
 public class KafkaEventStore : IEventStore
 {
-    private const string _entityEventsTopic = "entityEvents";
     private readonly ProducerBuilder<string, string> _producerBuilder;
 
     public KafkaEventStore(IKafkaConfiguration configuration)
@@ -25,7 +24,7 @@ public class KafkaEventStore : IEventStore
 
         var eventJson = EntityEventSerializer.Serialize(entityEvent);
         using var producer = _producerBuilder.Build();
-        await producer.ProduceAsync(_entityEventsTopic,
+        await producer.ProduceAsync(KafkaTopic.EntityEvents,
             new Message<string, string> { Key = entityEvent.EntityKey, Value = eventJson }
         );
     }

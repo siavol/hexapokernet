@@ -46,7 +46,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
     {
         Task.Run(() =>
         {
-            _consumer.Subscribe("entityEvents");
+            _consumer.Subscribe(KafkaTopic.EntityEvents);
             try
             {
                 while (true)
