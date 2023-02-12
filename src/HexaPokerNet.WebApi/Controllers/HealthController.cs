@@ -9,8 +9,12 @@ namespace HexaPokerNet.WebApi.Controllers;
 [Route("health")]
 public class HealthController : Controller
 {
+    /// <summary>
+    /// Returns a service health status.
+    /// </summary>
+    /// <returns>HTTP 200 when service is ready to handle requests</returns>
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
         return Ok();
     }
