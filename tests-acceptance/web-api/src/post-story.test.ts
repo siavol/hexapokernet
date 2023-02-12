@@ -1,23 +1,14 @@
+/**
+ * @jest-environment ./hexapokernet-web-api-env
+ */
 import {describe, expect, test, beforeAll} from '@jest/globals';
 
 describe('POST /story', () => {
     let baseUrl: string;
     
     beforeAll(() => {
-        expect(process.env.APP_HOST).toBeDefined();
-        expect(process.env.APP_PORT).toBeDefined();
-
-        baseUrl = `http://${process.env.APP_HOST}:${process.env.APP_PORT}`;
+        baseUrl = globalThis.baseUrl;
     });
-    
-    beforeAll(async () => {
-        while (true) {
-            const res = await fetch(`${baseUrl}/health`);
-            if (res.ok) {
-                return;
-            }
-        }
-    })
     
     describe('When requesting with valid JSON body', () => {
         let res: Response;
