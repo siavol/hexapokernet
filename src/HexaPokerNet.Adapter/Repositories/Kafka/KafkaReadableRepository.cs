@@ -9,6 +9,8 @@ namespace HexaPokerNet.Adapter.Repositories.Kafka;
 public class KafkaReadableRepository : IReadableRepository, IDisposable
 {
     private const int TimeoutAfterConsumeErrorInSeconds = 1;
+    private const int WaitStoryEventToBeHandled = 4;
+
     private readonly ILogger<KafkaReadableRepository> _logger;
     private readonly Dictionary<string, Story> _stories = new();
     private readonly IConsumer<string, IEntityEvent> _consumer;
@@ -37,12 +39,14 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
 
     public Task<Story> GetStoryById(string storyId)
     {
-        if (!_stories.TryGetValue(storyId, out var story))
-        {
-            throw new EntityNotFoundException();
-        }
+        SpinWait.SpinUntil(
+            () => _stories.ContainsKey(storyId),
+            TimeSpan.FromSeconds(WaitStoryEventToBeHandled));
 
-        return Task.FromResult(story);
+        if (_stories.TryGetValue(storyId, out var story))
+            return Task.FromResult(story);
+        throw new EntityNotFoundException();
+
     }
 
     public void Start()

@@ -25,7 +25,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
       - name: Setup .NET Core SDK
@@ -44,3 +43,19 @@ jobs:
         
       - name: Test with the dotnet CLI
         run: dotnet test
+  
+  test-acceptance-kafka:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test Web API with Kafka repository
+        run: docker compose -f ./docker-compose.web-api.kafka.test.yml up --abort-on-container-exit --exit-code-from test-web-api
+  
+  test-acceptance-in-memory:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test Web API with in-memory repository
+        run: docker compose -f ./docker-compose.web-api.in-memory.test.yml up --abort-on-container-exit --exit-code-from test-web-api
