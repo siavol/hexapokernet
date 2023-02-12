@@ -6,8 +6,6 @@ services:
       - "8080:80"
     environment:
       Logging__LogLevel__Default: Debug
-    depends_on:
-      - broker
 
   test-web-api:
     build: ./tests-acceptance/web-api
