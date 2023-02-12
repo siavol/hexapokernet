@@ -1,8 +1,10 @@
-FROM ubuntu:22.04
-
-RUN apt-get update && apt-get install -y curl
+FROM node:18
 
 WORKDIR /test
+
+COPY ./package*.json ./
+RUN npm ci
+
 COPY . .
 
-CMD ["/test/web-api.test.sh"]
+CMD ["npm", "test"]
