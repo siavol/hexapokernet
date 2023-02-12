@@ -40,10 +40,10 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
     public Task<Story> GetStoryById(string storyId)
     {
         SpinWait.SpinUntil(
-            () => _stories.ContainsKey(storyId), 
+            () => _stories.ContainsKey(storyId),
             TimeSpan.FromSeconds(WaitStoryEventToBeHandled));
 
-        if (_stories.TryGetValue(storyId, out var story)) 
+        if (_stories.TryGetValue(storyId, out var story))
             return Task.FromResult(story);
         throw new EntityNotFoundException();
 
