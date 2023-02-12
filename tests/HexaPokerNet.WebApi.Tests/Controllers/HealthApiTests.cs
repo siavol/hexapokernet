@@ -15,7 +15,7 @@ public class HealthApiTests
         _webApplicationFactory = new WebApplicationFactory<Program>();
         _client = _webApplicationFactory.CreateClient();
     }
-    
+
     [Test]
     public async Task GetHealthReturnsOk()
     {
