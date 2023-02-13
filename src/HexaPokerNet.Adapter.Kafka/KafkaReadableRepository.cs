@@ -18,7 +18,8 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
 
     public KafkaReadableRepository(IKafkaConfiguration configuration, ILogger<KafkaReadableRepository> logger)
     {
-        _logger = logger;
+        if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         var consumerId = Guid.NewGuid();
         var consumerConfig = new ConsumerConfig
@@ -30,7 +31,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         };
 
         _consumer = new ConsumerBuilder<string, IEntityEvent>(consumerConfig)
-            .SetErrorHandler((_, err) => Console.WriteLine(err))
+            .SetErrorHandler((_, err) => logger.LogError($"Kafka consumer error {err.Reason} with code {err.Code}"))
             .SetValueDeserializer(new EntityEventKafkaDeserializer())
             .Build();
 
