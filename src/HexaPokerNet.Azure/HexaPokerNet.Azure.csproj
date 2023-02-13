@@ -23,4 +23,8 @@
     <ItemGroup>
         <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\HexaPokerNet.Adapter\HexaPokerNet.Adapter.csproj" />
+      <ProjectReference Include="..\HexaPokerNet.Application\HexaPokerNet.Application.csproj" />
+    </ItemGroup>
 </Project>
