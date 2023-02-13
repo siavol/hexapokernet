@@ -14,6 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\HexaPokerNet.Adapter.Kafka\HexaPokerNet.Adapter.Kafka.csproj" />
       <ProjectReference Include="..\HexaPokerNet.Adapter\HexaPokerNet.Adapter.csproj" />
       <ProjectReference Include="..\HexaPokerNet.Application\HexaPokerNet.Application.csproj" />
       <ProjectReference Include="..\HexaPokerNet.Domain\HexaPokerNet.Domain.csproj" />
