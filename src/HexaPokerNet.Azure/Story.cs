@@ -1,34 +1,27 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Azure.WebJobs.Host;
+using System.Collections.Generic;
+using System.Net;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace HexaPokerNet.Azure;
 
 public static class Story
 {
-    [FunctionName("Story")]
-    public static async Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
-        ILogger log)
+    [Function("Story")]
+    public static HttpResponseData Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
+        FunctionContext executionContext)
     {
-        log.LogInformation("C# HTTP trigger function processed a request.");
+        var logger = executionContext.GetLogger("Story");
+        logger.LogInformation("C# HTTP trigger function processed a request.");
 
-        string name = req.Query["name"];
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
-        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        dynamic data = JsonConvert.DeserializeObject(requestBody);
-        name = name ?? data?.name;
+        response.WriteString("Welcome to Azure Functions!");
 
-        return name != null
-            ? new OkObjectResult($"Hello, {name}")
-            : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+        return response;
         
     }
 }
