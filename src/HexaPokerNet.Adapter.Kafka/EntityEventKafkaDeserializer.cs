@@ -1,8 +1,9 @@
 using System.Text;
 using Confluent.Kafka;
+using HexaPokerNet.Adapter.Repositories;
 using HexaPokerNet.Application.Events;
 
-namespace HexaPokerNet.Adapter.Repositories.Kafka;
+namespace HexaPokerNet.Adapter.Kafka;
 
 internal class EntityEventKafkaDeserializer : IDeserializer<IEntityEvent>
 {

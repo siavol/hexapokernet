@@ -4,7 +4,7 @@ using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 using Microsoft.Extensions.Logging;
 
-namespace HexaPokerNet.Adapter.Repositories.Kafka;
+namespace HexaPokerNet.Adapter.Kafka;
 
 public class KafkaReadableRepository : IReadableRepository, IDisposable
 {
@@ -34,7 +34,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
             .SetValueDeserializer(new EntityEventKafkaDeserializer())
             .Build();
 
-        _logger.LogDebug("Kafka readable repository created for {0}", configuration.KafkaServer);
+        _logger.LogDebug("Kafka readable repository created for {KafkaServer}", configuration.KafkaServer);
     }
 
     public Task<Story> GetStoryById(string storyId)

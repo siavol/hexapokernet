@@ -1,4 +1,4 @@
-namespace HexaPokerNet.Adapter.Repositories.Kafka;
+namespace HexaPokerNet.Adapter.Kafka;
 
 internal static class KafkaTopic
 {

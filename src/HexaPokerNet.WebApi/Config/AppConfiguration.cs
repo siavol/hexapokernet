@@ -1,5 +1,5 @@
 using HexaPokerNet.Adapter;
-using HexaPokerNet.Adapter.Repositories.Kafka;
+using HexaPokerNet.Adapter.Kafka;
 
 public class AppConfiguration : IKafkaConfiguration
 {
