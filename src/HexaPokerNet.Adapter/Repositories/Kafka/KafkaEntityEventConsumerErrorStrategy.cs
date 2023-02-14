@@ -36,18 +36,19 @@ public class ConsumerErrorWaitStrategy : IKafkaEntityEventConsumerErrorStrategy
 
 public class ConsumerErrorHealthTrackerStrategy : IKafkaEntityEventConsumerErrorStrategy
 {
-    private readonly HealthTracker _healthTracker;
     private readonly IKafkaEntityEventConsumerErrorStrategy _innerStrategy;
     private readonly TimeSpan _healthySilenceTimeout;
     private Timer? _silenceTimer;
     private AutoResetEvent? _silenceAutoEvent;
+    
+    public HealthTracker HealthTracker { get; }
 
     public ConsumerErrorHealthTrackerStrategy(
         HealthTracker healthTracker,
         IKafkaEntityEventConsumerErrorStrategy innerStrategy, 
         TimeSpan healthySilenceTimeout)
     {
-        _healthTracker = healthTracker ?? throw new ArgumentNullException(nameof(healthTracker));
+        HealthTracker = healthTracker ?? throw new ArgumentNullException(nameof(healthTracker));
         _innerStrategy = innerStrategy ?? throw new ArgumentNullException(nameof(innerStrategy));
         _healthySilenceTimeout = healthySilenceTimeout;
         
@@ -65,7 +66,7 @@ public class ConsumerErrorHealthTrackerStrategy : IKafkaEntityEventConsumerError
     {
         StopSilenceTimer();
         _silenceTimer = null;
-        _healthTracker.ReportHealthStatus(HealthStatus.Healthy);
+        HealthTracker.ReportHealthStatus(HealthStatus.Healthy);
     }
 
     private void StopSilenceTimer()
@@ -88,7 +89,7 @@ public class ConsumerErrorHealthTrackerStrategy : IKafkaEntityEventConsumerError
 
     private void RestartSilenceTimerWhenAppIsStarting()
     {
-        if (_healthTracker.HealthStatus == HealthStatus.Starting)
+        if (HealthTracker.HealthStatus == HealthStatus.Starting)
         {
             StartSilenceTimer();
         }

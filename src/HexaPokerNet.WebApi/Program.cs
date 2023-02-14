@@ -2,13 +2,14 @@ using System.Reflection;
 using HexaPokerNet.Adapter;
 using HexaPokerNet.Adapter.Repositories;
 using HexaPokerNet.Adapter.Repositories.Kafka;
+using HexaPokerNet.Application.Infrastructure;
 using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
-AddRepositoryServices(builder);
+AddHexapokernetServices(builder.Services, new AppConfiguration());
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -48,19 +49,21 @@ app.MapControllers();
 app.Run();
 
 
-void AddRepositoryServices(WebApplicationBuilder webApplicationBuilder)
+void AddHexapokernetServices(IServiceCollection services, AppConfiguration config)
 {
-    var config = new AppConfiguration();
+    services.AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
+    services.AddSingleton<AggregatedHealthProvider>();
+
     switch (config.RepositoryKind)
     {
         case EWritableRepository.InMemory:
             var inMemoryRepository = new InMemoryRepository();
-            webApplicationBuilder.Services
+            services
                 .AddSingleton<IEventStore>(inMemoryRepository)
                 .AddSingleton<IReadableRepository>(inMemoryRepository);
             break;
         case EWritableRepository.Kafka:
-            webApplicationBuilder.Services
+            services
                 .AddTransient<IKafkaConfiguration, AppConfiguration>()
                 .AddSingleton<IEventStore, KafkaEventStore>()
                 .AddSingleton<IReadableRepository, KafkaReadableRepository>();
@@ -68,8 +71,6 @@ void AddRepositoryServices(WebApplicationBuilder webApplicationBuilder)
         default:
             throw new ArgumentOutOfRangeException();
     }
-
-    webApplicationBuilder.Services.AddSingleton<IEntityIdGenerator, EntityIdGenerator>();
 }
 
 

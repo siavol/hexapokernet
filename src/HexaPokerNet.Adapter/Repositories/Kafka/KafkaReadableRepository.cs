@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using HexaPokerNet.Application.Events;
+using HexaPokerNet.Application.Infrastructure;
 using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 using Microsoft.Extensions.Logging;
@@ -14,9 +15,13 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
     private readonly Dictionary<string, Story> _stories = new();
     private readonly KafkaEntityEventConsumer _consumer;
 
-    public KafkaReadableRepository(IKafkaConfiguration configuration, ILogger<KafkaReadableRepository> logger)
+    public KafkaReadableRepository(
+        IKafkaConfiguration configuration,
+        AggregatedHealthProvider aggregatedHealthProvider,
+        ILogger<KafkaReadableRepository> logger)
     {
-        _logger = logger;
+        if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         var consumerId = Guid.NewGuid();
         var consumerConfig = new ConsumerConfig
@@ -30,10 +35,21 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         var kafkaConsumer = new ConsumerBuilder<string, IEntityEvent>(consumerConfig)
             .SetValueDeserializer(new EntityEventKafkaDeserializer())
             .Build();
-        var errorStrategy = new ConsumerErrorWaitStrategy(logger);
-        _consumer = new KafkaEntityEventConsumer(kafkaConsumer, errorStrategy);
+
+        var healthTrackerStrategy = CreateConsumerHealthTrackerStrategy(logger);
+        _consumer = new KafkaEntityEventConsumer(kafkaConsumer, healthTrackerStrategy);
+        aggregatedHealthProvider.RegisterHealthProvider(healthTrackerStrategy.HealthTracker);
 
         _logger.LogDebug("Kafka readable repository created for {KafkaServer}", configuration.KafkaServer);
+    }
+
+    private static ConsumerErrorHealthTrackerStrategy CreateConsumerHealthTrackerStrategy(ILogger<KafkaReadableRepository> logger)
+    {
+        var errorStrategy = new ConsumerErrorWaitStrategy(logger);
+        var healthTracker = new HealthTracker();
+        var healthTrackerStrategy = new ConsumerErrorHealthTrackerStrategy(
+            healthTracker, errorStrategy, TimeSpan.FromSeconds(3));
+        return healthTrackerStrategy;
     }
 
     public Task<Story> GetStoryById(string storyId)

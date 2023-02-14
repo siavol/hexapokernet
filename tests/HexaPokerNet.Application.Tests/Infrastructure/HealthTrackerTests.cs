@@ -21,21 +21,7 @@ public class HealthTrackerTests
 
         Assert.That(healthTracker.HealthStatus, Is.EqualTo(HealthStatus.Healthy));
     }
-
-    [Test]
-    public void ShouldRaiseEventWhenReportedHealthyStatus()
-    {
-        var healthTracker = new HealthTracker();
-        var eventRaised = false;
-        healthTracker.HealthStatusChanged += (_, _) =>
-        {
-            eventRaised = true;
-        };
-
-        healthTracker.ReportHealthStatus(HealthStatus.Healthy);
-        Assert.That(eventRaised, Is.True);
-    }
-
+    
     [TestFixture]
     public class WhenHealthStatusIsHealthy
     {

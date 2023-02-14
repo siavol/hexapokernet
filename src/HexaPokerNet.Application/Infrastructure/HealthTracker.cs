@@ -2,21 +2,7 @@ namespace HexaPokerNet.Application.Infrastructure;
 
 public sealed class HealthTracker : IHealthProvider
 {
-    private HealthStatus _healthStatus = HealthStatus.Starting;
-    public event EventHandler? HealthStatusChanged;
-
-    public HealthStatus HealthStatus
-    {
-        get => _healthStatus;
-        private set
-        {
-            if (_healthStatus != value)
-            {
-                _healthStatus = value;
-                RaiseHealthStatusChanged();
-            }
-        }
-    }
+    public HealthStatus HealthStatus { get; private set; } = HealthStatus.Starting;
 
     public void ReportHealthStatus(HealthStatus status)
     {
@@ -28,10 +14,5 @@ public sealed class HealthTracker : IHealthProvider
             HealthStatus.Healthy => status,
             _ => status
         };
-    }
-
-    private void RaiseHealthStatusChanged()
-    {
-        HealthStatusChanged?.Invoke(this, EventArgs.Empty);
     }
 }
