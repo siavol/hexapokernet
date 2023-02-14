@@ -18,7 +18,7 @@ public class HealthTrackerTests
     {
         var healthTracker = new HealthTracker();
         healthTracker.ReportHealthStatus(HealthStatus.Healthy);
-        
+
         Assert.That(healthTracker.HealthStatus, Is.EqualTo(HealthStatus.Healthy));
     }
 
@@ -31,11 +31,11 @@ public class HealthTrackerTests
         {
             eventRaised = true;
         };
-        
+
         healthTracker.ReportHealthStatus(HealthStatus.Healthy);
         Assert.That(eventRaised, Is.True);
     }
-    
+
     [TestFixture]
     public class WhenHealthStatusIsHealthy
     {

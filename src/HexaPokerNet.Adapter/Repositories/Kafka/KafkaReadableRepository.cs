@@ -67,17 +67,6 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         });
     }
 
-    private void HandleEvent(IEntityEvent? entityEvent)
-    {
-        switch (entityEvent)
-        {
-            case StoryAddedEvent storyAdded:
-                _logger.LogInformation("Consumed a Story Added event from Kafka: {StoryId}", storyAdded.StoryId);
-                _stories.Add(storyAdded.StoryId, storyAdded.GetEntity());
-                break;
-        }
-    }
-
     private IEntityEvent? ConsumeNextEvent()
     {
         var result = ConsumeAndWaitIfError();
@@ -96,6 +85,17 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
                 e.Message, TimeoutAfterConsumeErrorInSeconds);
             Thread.Sleep(TimeSpan.FromSeconds(TimeoutAfterConsumeErrorInSeconds));
             return null;
+        }
+    }
+
+    private void HandleEvent(IEntityEvent? entityEvent)
+    {
+        switch (entityEvent)
+        {
+            case StoryAddedEvent storyAdded:
+                _logger.LogInformation("Consumed a Story Added event from Kafka: {StoryId}", storyAdded.StoryId);
+                _stories.Add(storyAdded.StoryId, storyAdded.GetEntity());
+                break;
         }
     }
 

@@ -1,6 +1,6 @@
 namespace HexaPokerNet.Application.Infrastructure;
 
-public sealed class HealthTracker: IHealthProvider
+public sealed class HealthTracker : IHealthProvider
 {
     private HealthStatus _healthStatus = HealthStatus.Starting;
     public event EventHandler? HealthStatusChanged;
