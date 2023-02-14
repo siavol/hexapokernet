@@ -10,7 +10,7 @@ public class AggregatedHealthProvider : IHealthProvider
         {
             if (_healthProviders.Count == 0)
             {
-                return HealthStatus.Starting;
+                return HealthStatus.Healthy;
             }
 
             if (_healthProviders.All(_ => _.HealthStatus == HealthStatus.Healthy))

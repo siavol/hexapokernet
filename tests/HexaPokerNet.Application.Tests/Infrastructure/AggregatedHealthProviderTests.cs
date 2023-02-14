@@ -7,10 +7,10 @@ namespace HexaPokerNet.Application.Tests.Infrastructure;
 public class AggregatedHealthProviderTests
 {
     [Test]
-    public void ShouldReturnStartingWhenNoHealthTrackersRegistered()
+    public void ShouldReturnHealthyWhenNoHealthTrackersRegistered()
     {
         var aggregatedHealthProvider = new AggregatedHealthProvider();
-        Assert.That(aggregatedHealthProvider.HealthStatus, Is.EqualTo(HealthStatus.Starting));
+        Assert.That(aggregatedHealthProvider.HealthStatus, Is.EqualTo(HealthStatus.Healthy));
     }
 
     [Test]
