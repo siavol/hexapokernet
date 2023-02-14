@@ -65,7 +65,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
             }
         });
     }
-    
+
     private void HandleEvent(IEntityEvent? entityEvent)
     {
         switch (entityEvent)
