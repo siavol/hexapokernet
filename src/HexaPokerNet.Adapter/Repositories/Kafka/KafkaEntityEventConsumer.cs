@@ -1,20 +1,18 @@
 using Confluent.Kafka;
 using HexaPokerNet.Application.Events;
-using Microsoft.Extensions.Logging;
 
 namespace HexaPokerNet.Adapter.Repositories.Kafka;
 
 public class KafkaEntityEventConsumer : IDisposable
 {
-    private const int TimeoutAfterConsumeErrorInSeconds = 1;
     private readonly IConsumer<string, IEntityEvent> _consumer;
-    private readonly ILogger _logger;
+    private readonly IKafkaEntityEventConsumerErrorStrategy _errorStrategy;
     private readonly CancellationTokenSource _consumerTaskCancellationTokenSource = new();
 
-    public KafkaEntityEventConsumer(IConsumer<string, IEntityEvent> consumer, ILogger logger)
+    public KafkaEntityEventConsumer(IConsumer<string, IEntityEvent> consumer, IKafkaEntityEventConsumerErrorStrategy errorStrategy)
     {
         _consumer = consumer ?? throw new ArgumentNullException(nameof(consumer));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _errorStrategy = errorStrategy ?? throw new ArgumentNullException(nameof(errorStrategy));
     }
 
     public void SubscribeTopics()
@@ -36,10 +34,7 @@ public class KafkaEntityEventConsumer : IDisposable
         }
         catch (ConsumeException e)
         {
-            _logger.LogWarning("Failed to consume messages - {Message}. Wait {Timeout} second(s)",
-                e.Message, TimeoutAfterConsumeErrorInSeconds);
-            Thread.Sleep(TimeSpan.FromSeconds(TimeoutAfterConsumeErrorInSeconds));
-            return null;
+            return _errorStrategy.GetErrorResult(e);
         }
     }
 

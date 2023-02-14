@@ -30,7 +30,8 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         var kafkaConsumer = new ConsumerBuilder<string, IEntityEvent>(consumerConfig)
             .SetValueDeserializer(new EntityEventKafkaDeserializer())
             .Build();
-        _consumer = new KafkaEntityEventConsumer(kafkaConsumer, logger);
+        var errorStrategy = new ConsumerErrorWaitStrategy(logger);
+        _consumer = new KafkaEntityEventConsumer(kafkaConsumer, errorStrategy);
 
         _logger.LogDebug("Kafka readable repository created for {KafkaServer}", configuration.KafkaServer);
     }
