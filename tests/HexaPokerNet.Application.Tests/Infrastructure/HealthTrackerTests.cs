@@ -21,7 +21,7 @@ public class HealthTrackerTests
 
         Assert.That(healthTracker.HealthStatus, Is.EqualTo(HealthStatus.Healthy));
     }
-    
+
     [TestFixture]
     public class WhenHealthStatusIsHealthy
     {

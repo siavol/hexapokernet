@@ -40,7 +40,7 @@ public class KafkaEntityEventConsumerTests
         Assert.That(entityEvent, Is.SameAs(newEvent));
     }
 
-    
+
     [Test]
     public void ConsumeNextEventShouldNotifyErrorStrategyWhenConsumedSuccessfully()
     {
@@ -50,7 +50,7 @@ public class KafkaEntityEventConsumerTests
         ).Returns(consumeResult);
 
         _consumer.ConsumeNextEvent();
-        
+
         _errorStrategyMock.Verify(_ => _.ConsumedSuccessfully());
     }
 

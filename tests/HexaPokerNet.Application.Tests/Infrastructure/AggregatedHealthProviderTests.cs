@@ -20,7 +20,7 @@ public class AggregatedHealthProviderTests
         var healthProviderMock = new Mock<IHealthProvider>();
         aggregatedHealthProvider.RegisterHealthProvider(healthProviderMock.Object);
         healthProviderMock.Setup(_ => _.HealthStatus).Returns(HealthStatus.Healthy);
-        
+
         Assert.That(aggregatedHealthProvider.HealthStatus, Is.EqualTo(HealthStatus.Healthy));
     }
 }

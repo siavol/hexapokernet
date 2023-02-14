@@ -40,18 +40,18 @@ public class ConsumerErrorHealthTrackerStrategy : IKafkaEntityEventConsumerError
     private readonly TimeSpan _healthySilenceTimeout;
     private Timer? _silenceTimer;
     private AutoResetEvent? _silenceAutoEvent;
-    
+
     public HealthTracker HealthTracker { get; }
 
     public ConsumerErrorHealthTrackerStrategy(
         HealthTracker healthTracker,
-        IKafkaEntityEventConsumerErrorStrategy innerStrategy, 
+        IKafkaEntityEventConsumerErrorStrategy innerStrategy,
         TimeSpan healthySilenceTimeout)
     {
         HealthTracker = healthTracker ?? throw new ArgumentNullException(nameof(healthTracker));
         _innerStrategy = innerStrategy ?? throw new ArgumentNullException(nameof(innerStrategy));
         _healthySilenceTimeout = healthySilenceTimeout;
-        
+
         StartSilenceTimer();
     }
 

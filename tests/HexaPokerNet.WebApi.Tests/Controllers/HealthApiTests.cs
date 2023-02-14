@@ -32,7 +32,7 @@ public class HealthApiTests
         var response = await _client.GetAsync("/health");
         response.EnsureSuccessStatusCode();
     }
-    
+
     [Test]
     public async Task GetHealthReturnsHttp503ServiceUnavailableWhenAppIsStarting()
     {

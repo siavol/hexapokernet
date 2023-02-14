@@ -21,16 +21,16 @@ public class ConsumerErrorHealthTrackerStrategyTests
         var healthySilenceTimeout = TimeSpan.FromMilliseconds(500);
         _strategy = new ConsumerErrorHealthTrackerStrategy(
             _healthTracker,
-            _innerStrategyMock.Object, 
+            _innerStrategyMock.Object,
             healthySilenceTimeout);
     }
-    
+
     [Test]
     public void ShouldKeepStartingHealthWhenFirstConsumptionFails()
     {
         _strategy.GetErrorResult(CreateConsumeException());
         _strategy.GetErrorResult(CreateConsumeException());
-        
+
         Assert.That(_healthTracker.HealthStatus, Is.EqualTo(HealthStatus.Starting));
     }
 
@@ -46,7 +46,7 @@ public class ConsumerErrorHealthTrackerStrategyTests
             Assert.That(_healthTracker.HealthStatus, Is.EqualTo(HealthStatus.Healthy));
         });
     }
-    
+
     private static ConsumeException CreateConsumeException()
     {
         return new ConsumeException(new ConsumeResult<byte[], byte[]>(), new Error(ErrorCode.Unknown));
