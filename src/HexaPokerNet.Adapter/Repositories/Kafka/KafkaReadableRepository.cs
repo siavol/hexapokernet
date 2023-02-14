@@ -30,11 +30,10 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         };
 
         _consumer = new ConsumerBuilder<string, IEntityEvent>(consumerConfig)
-            .SetErrorHandler((_, err) => Console.WriteLine(err))
             .SetValueDeserializer(new EntityEventKafkaDeserializer())
             .Build();
 
-        _logger.LogDebug("Kafka readable repository created for {0}", configuration.KafkaServer);
+        _logger.LogDebug("Kafka readable repository created for {KafkaServer}", configuration.KafkaServer);
     }
 
     public Task<Story> GetStoryById(string storyId)
@@ -46,7 +45,6 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         if (_stories.TryGetValue(storyId, out var story))
             return Task.FromResult(story);
         throw new EntityNotFoundException();
-
     }
 
     public void Start()
@@ -64,17 +62,19 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
             }
             catch (OperationCanceledException)
             {
-                _logger.LogWarning("Kafka consumer task is stopped.");
+                _logger.LogWarning("Kafka consumer task is stopped");
             }
         });
     }
 
     private void HandleEvent(IEntityEvent? entityEvent)
     {
-        if (entityEvent is StoryAddedEvent storyAdded)
+        switch (entityEvent)
         {
-            _logger.LogInformation("Consumed a Story Added event from Kafka: {0}", storyAdded.StoryId);
-            _stories.Add(storyAdded.StoryId, storyAdded.GetEntity());
+            case StoryAddedEvent storyAdded:
+                _logger.LogInformation("Consumed a Story Added event from Kafka: {StoryId}", storyAdded.StoryId);
+                _stories.Add(storyAdded.StoryId, storyAdded.GetEntity());
+                break;
         }
     }
 
@@ -92,14 +92,14 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         }
         catch (ConsumeException e)
         {
-            _logger.LogWarning("Failed to consume messages - {0}. Wait {1} second(s)",
+            _logger.LogWarning("Failed to consume messages - {Message}. Wait {Timeout} second(s)",
                 e.Message, TimeoutAfterConsumeErrorInSeconds);
             Thread.Sleep(TimeSpan.FromSeconds(TimeoutAfterConsumeErrorInSeconds));
             return null;
         }
     }
 
-    public void Dispose()
+    void IDisposable.Dispose()
     {
         _consumer.Dispose();
         _consumerTaskCancellationTokenSource.Cancel();
