@@ -46,7 +46,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
     private static ConsumerErrorHealthTrackerStrategy CreateConsumerHealthTrackerStrategy(ILogger<KafkaReadableRepository> logger)
     {
         var errorStrategy = new ConsumerErrorWaitStrategy(logger);
-        var healthTracker = new HealthTracker();
+        var healthTracker = new HealthLoggingTracker(logger);
         var healthTrackerStrategy = new ConsumerErrorHealthTrackerStrategy(
             healthTracker, errorStrategy, TimeSpan.FromSeconds(3));
         return healthTrackerStrategy;

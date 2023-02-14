@@ -1,10 +1,10 @@
 namespace HexaPokerNet.Application.Infrastructure;
 
-public sealed class HealthTracker : IHealthProvider
+public class HealthTracker : IHealthProvider
 {
     public HealthStatus HealthStatus { get; private set; } = HealthStatus.Starting;
 
-    public void ReportHealthStatus(HealthStatus status)
+    public virtual void ReportHealthStatus(HealthStatus status)
     {
         HealthStatus = HealthStatus switch
         {
