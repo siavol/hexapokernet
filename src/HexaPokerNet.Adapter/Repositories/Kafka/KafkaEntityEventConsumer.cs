@@ -30,7 +30,9 @@ public class KafkaEntityEventConsumer : IDisposable
     {
         try
         {
-            return _consumer.Consume(_consumerTaskCancellationTokenSource.Token);
+            var consumeResult = _consumer.Consume(_consumerTaskCancellationTokenSource.Token);
+            _errorStrategy.ConsumedSuccessfully();
+            return consumeResult;
         }
         catch (ConsumeException e)
         {

@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using HexaPokerNet.Application.Events;
+using HexaPokerNet.Application.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace HexaPokerNet.Adapter.Repositories.Kafka;
@@ -7,6 +8,7 @@ namespace HexaPokerNet.Adapter.Repositories.Kafka;
 public interface IKafkaEntityEventConsumerErrorStrategy
 {
     ConsumeResult<string, IEntityEvent>? GetErrorResult(ConsumeException e);
+    void ConsumedSuccessfully();
 }
 
 public class ConsumerErrorWaitStrategy : IKafkaEntityEventConsumerErrorStrategy
@@ -25,5 +27,70 @@ public class ConsumerErrorWaitStrategy : IKafkaEntityEventConsumerErrorStrategy
             e.Message, TimeoutAfterConsumeErrorInSeconds);
         Thread.Sleep(TimeSpan.FromSeconds(TimeoutAfterConsumeErrorInSeconds));
         return null;
+    }
+
+    void IKafkaEntityEventConsumerErrorStrategy.ConsumedSuccessfully()
+    {
+    }
+}
+
+public class ConsumerErrorHealthTrackerStrategy : IKafkaEntityEventConsumerErrorStrategy
+{
+    private readonly HealthTracker _healthTracker;
+    private readonly IKafkaEntityEventConsumerErrorStrategy _innerStrategy;
+    private readonly TimeSpan _healthySilenceTimeout;
+    private Timer? _silenceTimer;
+    private AutoResetEvent? _silenceAutoEvent;
+
+    public ConsumerErrorHealthTrackerStrategy(
+        HealthTracker healthTracker,
+        IKafkaEntityEventConsumerErrorStrategy innerStrategy, 
+        TimeSpan healthySilenceTimeout)
+    {
+        _healthTracker = healthTracker ?? throw new ArgumentNullException(nameof(healthTracker));
+        _innerStrategy = innerStrategy ?? throw new ArgumentNullException(nameof(innerStrategy));
+        _healthySilenceTimeout = healthySilenceTimeout;
+        
+        StartSilenceTimer();
+    }
+
+    private void StartSilenceTimer()
+    {
+        StopSilenceTimer();
+        _silenceAutoEvent = new AutoResetEvent(false);
+        _silenceTimer = new Timer(SilenceTimerCallback, _silenceAutoEvent, _healthySilenceTimeout, Timeout.InfiniteTimeSpan);
+    }
+
+    private void SilenceTimerCallback(object? state)
+    {
+        StopSilenceTimer();
+        _silenceTimer = null;
+        _healthTracker.ReportHealthStatus(HealthStatus.Healthy);
+    }
+
+    private void StopSilenceTimer()
+    {
+        _silenceAutoEvent?.Set();
+        _silenceTimer?.Dispose();
+    }
+
+    public ConsumeResult<string, IEntityEvent>? GetErrorResult(ConsumeException e)
+    {
+        RestartSilenceTimerWhenAppIsStarting();
+        return _innerStrategy.GetErrorResult(e);
+    }
+
+    public void ConsumedSuccessfully()
+    {
+        RestartSilenceTimerWhenAppIsStarting();
+        _innerStrategy.ConsumedSuccessfully();
+    }
+
+    private void RestartSilenceTimerWhenAppIsStarting()
+    {
+        if (_healthTracker.HealthStatus == HealthStatus.Starting)
+        {
+            StartSilenceTimer();
+        }
     }
 }

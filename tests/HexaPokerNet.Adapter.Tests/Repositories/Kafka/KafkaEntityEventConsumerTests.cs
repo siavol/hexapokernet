@@ -1,4 +1,3 @@
-using System.Data;
 using Confluent.Kafka;
 using HexaPokerNet.Adapter.Repositories.Kafka;
 using HexaPokerNet.Application.Events;
@@ -41,19 +40,38 @@ public class KafkaEntityEventConsumerTests
         Assert.That(entityEvent, Is.SameAs(newEvent));
     }
 
+    
+    [Test]
+    public void ConsumeNextEventShouldNotifyErrorStrategyWhenConsumedSuccessfully()
+    {
+        var consumeResult = GetConsumeResult(new Mock<IEntityEvent>().Object);
+        _kafkaConsumerMock.Setup(
+            _ => _.Consume(It.IsAny<CancellationToken>())
+        ).Returns(consumeResult);
+
+        _consumer.ConsumeNextEvent();
+        
+        _errorStrategyMock.Verify(_ => _.ConsumedSuccessfully());
+    }
+
     [Test]
     public void ConsumeNextEventShouldReturnErrorStrategyResultWhenConsumptionExceptionThrown()
     {
         var newEvent = new Mock<IEntityEvent>().Object;
         _kafkaConsumerMock.Setup(
             _ => _.Consume(It.IsAny<CancellationToken>())
-        ).Throws(new ConsumeException(new ConsumeResult<byte[], byte[]>(), new Error(ErrorCode.Unknown)));
+        ).Throws(CreateConsumeException());
         _errorStrategyMock.Setup(
             _ => _.GetErrorResult(It.IsAny<ConsumeException>())
         ).Returns(GetConsumeResult(newEvent));
 
         var entityEvent = _consumer.ConsumeNextEvent();
         Assert.That(entityEvent, Is.SameAs(newEvent));
+    }
+
+    private static ConsumeException CreateConsumeException()
+    {
+        return new ConsumeException(new ConsumeResult<byte[], byte[]>(), new Error(ErrorCode.Unknown));
     }
 
     private static ConsumeResult<string, IEntityEvent> GetConsumeResult(IEntityEvent entityEvent)
