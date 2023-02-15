@@ -10,7 +10,7 @@ namespace HexaPokerNet.Adapter.Repositories.Kafka;
 public class KafkaReadableRepository : IReadableRepository, IDisposable
 {
     private const int WaitStoryEventToBeHandled = 2;
-    private const int HealthySilenceTimeoutInSeconds = 4;
+    private const int HealthySilenceTimeoutInSeconds = 5;
 
     private readonly ILogger<KafkaReadableRepository> _logger;
     private readonly Dictionary<string, Story> _stories = new();
