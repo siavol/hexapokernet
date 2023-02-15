@@ -10,6 +10,7 @@ namespace HexaPokerNet.Adapter.Repositories.Kafka;
 public class KafkaReadableRepository : IReadableRepository, IDisposable
 {
     private const int WaitStoryEventToBeHandled = 4;
+    private const int HealthySilenceTimeoutInSeconds = 4;
 
     private readonly ILogger<KafkaReadableRepository> _logger;
     private readonly Dictionary<string, Story> _stories = new();
@@ -48,7 +49,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         var errorStrategy = new ConsumerErrorWaitStrategy(logger);
         var healthTracker = new HealthLoggingTracker(logger);
         var healthTrackerStrategy = new ConsumerErrorHealthTrackerStrategy(
-            healthTracker, errorStrategy, TimeSpan.FromSeconds(3));
+            healthTracker, errorStrategy, TimeSpan.FromSeconds(HealthySilenceTimeoutInSeconds));
         return healthTrackerStrategy;
     }
 
@@ -67,6 +68,7 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
     {
         Task.Run(() =>
         {
+            _logger.LogInformation("Start kafka event consuming task");
             _consumer.SubscribeTopics();
             try
             {
