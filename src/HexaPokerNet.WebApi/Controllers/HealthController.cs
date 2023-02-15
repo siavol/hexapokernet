@@ -1,3 +1,5 @@
+using System.Net;
+using HexaPokerNet.Application.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HexaPokerNet.WebApi.Controllers;
@@ -14,8 +16,15 @@ public class HealthController : Controller
     /// </summary>
     /// <returns>HTTP 200 when service is ready to handle requests</returns>
     [HttpGet]
-    public IActionResult Index()
+    public IActionResult Index([FromServices] AggregatedHealthProvider healthProvider)
     {
-        return Ok();
+        if (healthProvider == null) throw new ArgumentNullException(nameof(healthProvider));
+
+        return healthProvider.HealthStatus switch
+        {
+            HealthStatus.Starting => StatusCode((int)HttpStatusCode.ServiceUnavailable),
+            HealthStatus.Healthy => Ok(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 }

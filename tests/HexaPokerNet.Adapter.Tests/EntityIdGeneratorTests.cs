@@ -27,4 +27,12 @@ public class EntityIdGeneratorTests
         var newId2 = _idGenerator.NewId();
         Assert.That(newId1, Is.Not.EqualTo(newId2));
     }
+
+    [Test]
+    [Repeat(100)]
+    public void GeneratesUrlSafeStrings()
+    {
+        var newId = _idGenerator.NewId();
+        Assert.That(newId, Does.Match("^[a-zA-Z\\d]+$"));
+    }
 }

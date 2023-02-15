@@ -5,9 +5,11 @@ import {describe, expect, test, beforeAll} from '@jest/globals';
 
 describe('GET /story/{storyId}', () => {
     let baseUrl: string;
+    let fetch: typeof global.fetch;
 
     beforeAll(() => {
         baseUrl = globalThis.baseUrl;
+        fetch = globalThis.fetch;
     });
 
     describe('When requesting not-existing story', () => {

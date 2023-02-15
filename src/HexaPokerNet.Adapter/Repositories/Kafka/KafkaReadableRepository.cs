@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using HexaPokerNet.Application.Events;
+using HexaPokerNet.Application.Infrastructure;
 using HexaPokerNet.Application.Repositories;
 using HexaPokerNet.Domain;
 using Microsoft.Extensions.Logging;
@@ -8,17 +9,20 @@ namespace HexaPokerNet.Adapter.Repositories.Kafka;
 
 public class KafkaReadableRepository : IReadableRepository, IDisposable
 {
-    private const int TimeoutAfterConsumeErrorInSeconds = 1;
-    private const int WaitStoryEventToBeHandled = 4;
+    private const int WaitStoryEventToBeHandled = 2;
+    private const int HealthySilenceTimeoutInSeconds = 5;
 
     private readonly ILogger<KafkaReadableRepository> _logger;
     private readonly Dictionary<string, Story> _stories = new();
-    private readonly IConsumer<string, IEntityEvent> _consumer;
-    private readonly CancellationTokenSource _consumerTaskCancellationTokenSource = new();
+    private readonly KafkaEntityEventConsumer _consumer;
 
-    public KafkaReadableRepository(IKafkaConfiguration configuration, ILogger<KafkaReadableRepository> logger)
+    public KafkaReadableRepository(
+        IKafkaConfiguration configuration,
+        AggregatedHealthProvider aggregatedHealthProvider,
+        ILogger<KafkaReadableRepository> logger)
     {
-        _logger = logger;
+        if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         var consumerId = Guid.NewGuid();
         var consumerConfig = new ConsumerConfig
@@ -29,12 +33,24 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
             AutoOffsetReset = AutoOffsetReset.Earliest
         };
 
-        _consumer = new ConsumerBuilder<string, IEntityEvent>(consumerConfig)
-            .SetErrorHandler((_, err) => Console.WriteLine(err))
+        var kafkaConsumer = new ConsumerBuilder<string, IEntityEvent>(consumerConfig)
             .SetValueDeserializer(new EntityEventKafkaDeserializer())
             .Build();
 
-        _logger.LogDebug("Kafka readable repository created for {0}", configuration.KafkaServer);
+        var healthTrackerStrategy = CreateConsumerHealthTrackerStrategy(logger);
+        _consumer = new KafkaEntityEventConsumer(kafkaConsumer, healthTrackerStrategy);
+        aggregatedHealthProvider.RegisterHealthProvider(healthTrackerStrategy.HealthTracker);
+
+        _logger.LogDebug("Kafka readable repository created for {KafkaServer}", configuration.KafkaServer);
+    }
+
+    private static ConsumerErrorHealthTrackerStrategy CreateConsumerHealthTrackerStrategy(ILogger<KafkaReadableRepository> logger)
+    {
+        var errorStrategy = new ConsumerErrorWaitStrategy(logger);
+        var healthTracker = new HealthLoggingTracker(logger);
+        var healthTrackerStrategy = new ConsumerErrorHealthTrackerStrategy(
+            healthTracker, errorStrategy, TimeSpan.FromSeconds(HealthySilenceTimeoutInSeconds));
+        return healthTrackerStrategy;
     }
 
     public Task<Story> GetStoryById(string storyId)
@@ -46,63 +62,42 @@ public class KafkaReadableRepository : IReadableRepository, IDisposable
         if (_stories.TryGetValue(storyId, out var story))
             return Task.FromResult(story);
         throw new EntityNotFoundException();
-
     }
 
     public void Start()
     {
         Task.Run(() =>
         {
-            _consumer.Subscribe(KafkaTopic.EntityEvents);
+            _logger.LogInformation("Start kafka event consuming task");
+            _consumer.SubscribeTopics();
             try
             {
                 while (true)
                 {
-                    var entityEvent = ConsumeNextEvent();
+                    var entityEvent = _consumer.ConsumeNextEvent();
                     HandleEvent(entityEvent);
                 }
             }
             catch (OperationCanceledException)
             {
-                _logger.LogWarning("Kafka consumer task is stopped.");
+                _logger.LogWarning("Kafka consumer task is stopped");
             }
         });
     }
 
     private void HandleEvent(IEntityEvent? entityEvent)
     {
-        if (entityEvent is StoryAddedEvent storyAdded)
+        switch (entityEvent)
         {
-            _logger.LogInformation("Consumed a Story Added event from Kafka: {0}", storyAdded.StoryId);
-            _stories.Add(storyAdded.StoryId, storyAdded.GetEntity());
+            case StoryAddedEvent storyAdded:
+                _logger.LogInformation("Consumed a Story Added event from Kafka: {StoryId}", storyAdded.StoryId);
+                _stories.Add(storyAdded.StoryId, storyAdded.GetEntity());
+                break;
         }
     }
 
-    private IEntityEvent? ConsumeNextEvent()
-    {
-        var result = ConsumeAndWaitIfError();
-        return result?.Message?.Value;
-    }
-
-    private ConsumeResult<string, IEntityEvent>? ConsumeAndWaitIfError()
-    {
-        try
-        {
-            return _consumer.Consume(_consumerTaskCancellationTokenSource.Token);
-        }
-        catch (ConsumeException e)
-        {
-            _logger.LogWarning("Failed to consume messages - {0}. Wait {1} second(s)",
-                e.Message, TimeoutAfterConsumeErrorInSeconds);
-            Thread.Sleep(TimeSpan.FromSeconds(TimeoutAfterConsumeErrorInSeconds));
-            return null;
-        }
-    }
-
-    public void Dispose()
+    void IDisposable.Dispose()
     {
         _consumer.Dispose();
-        _consumerTaskCancellationTokenSource.Cancel();
-        _consumerTaskCancellationTokenSource.Dispose();
     }
 }

@@ -2,5 +2,6 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    reporters: ['default', ['github-actions', {silent: false}], 'summary']
+    reporters: ['default', ['github-actions', {silent: false}], 'summary'],
+    testTimeout: 10000
 };
