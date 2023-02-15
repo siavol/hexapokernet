@@ -5,9 +5,11 @@ import {describe, expect, test, beforeAll} from '@jest/globals';
 
 describe('POST /story', () => {
     let baseUrl: string;
-    
+    let fetch: typeof global.fetch;
+
     beforeAll(() => {
         baseUrl = globalThis.baseUrl;
+        fetch = globalThis.fetch;
     });
     
     describe('When requesting with valid JSON body', () => {
