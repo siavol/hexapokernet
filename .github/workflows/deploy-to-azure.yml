@@ -1,12 +1,12 @@
 name: Deploy to Azure
 
 on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
   workflow_run:
     workflows: ["Build and Test"]
-    push:
-      branches: [ "main" ]
-    pull_request:
-      branches: [ "main" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
