@@ -7,12 +7,12 @@ namespace HexaPokerNet.Adapter;
 public class EntityIdGenerator : IEntityIdGenerator
 {
     private const int IdLength = 10;
-    
+
     public string NewId()
     {
         return GetSHA1Hash(Guid.NewGuid().ToString());
     }
-    
+
     private static string GetSHA1Hash(string input)
     {
         var bytes = Encoding.Default.GetBytes(input);
