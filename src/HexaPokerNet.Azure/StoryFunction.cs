@@ -1,4 +1,3 @@
-using System.Net;
 using HexaPokerNet.Application.Events;
 using HexaPokerNet.Domain;
 using Microsoft.Azure.Functions.Worker;
@@ -19,16 +18,16 @@ public class StoryFunction
     }
 
     [Function("Story")]
-    public async Task<HttpResponseData> Run(
+    [CosmosDBOutput("input-events", "entity-events",
+        Connection = "CosmosConnection",
+        CreateIfNotExists = true)]
+    public async Task<StoryAddedEvent> PostStory(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         var input = await req.ReadFromJsonAsync<AddStoryParameters>();
         var storyId = _entityIdGenerator.NewId();
         var storyAddedEvent = new StoryAddedEvent(input.Title, storyId);
-
-        var response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(storyAddedEvent);
-        return response;
+        return storyAddedEvent;
     }
 }
 
