@@ -19,7 +19,7 @@ public class EventHandlerFunction
         containerName: StorageConstants.MaterializedStoriesContainerName,
         Connection = StorageConstants.CosmosConnectionSettingName,
         CreateIfNotExists = true)]
-    public StoryEntity OnEntityEvent([CosmosDBTrigger(
+    public IEnumerable<StoryEntity> OnEntityEvent([CosmosDBTrigger(
             databaseName: StorageConstants.InputEventsDatabaseName,
             containerName: StorageConstants.EntityEventsContainerName,
             Connection = StorageConstants.CosmosConnectionSettingName,
@@ -32,8 +32,7 @@ public class EventHandlerFunction
             {
                 Id = e.StoryId,
                 Title = e.StoryTitle
-            })
-            .Single();
+            });
     }
 }
 
