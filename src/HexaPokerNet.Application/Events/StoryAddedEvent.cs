@@ -7,7 +7,7 @@ public class StoryAddedEvent : IEntityEvent
 {
     [JsonPropertyName("id")]
     public string StoryId { get; }
-    
+
     public string StoryTitle { get; }
 
     string IEntityEvent.EntityKey => StoryId;
