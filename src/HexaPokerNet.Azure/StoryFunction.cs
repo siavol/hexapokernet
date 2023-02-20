@@ -26,7 +26,7 @@ public class StoryFunction
     {
         var input = await req.ReadFromJsonAsync<AddStoryParameters>();
         var storyId = _entityIdGenerator.NewId();
-        var storyAddedEvent = new StoryAddedEvent(input.Title, storyId);
+        var storyAddedEvent = new StoryAddedEvent(storyId, input.Title);
         return storyAddedEvent;
     }
 }
