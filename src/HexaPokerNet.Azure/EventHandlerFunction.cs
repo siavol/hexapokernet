@@ -15,7 +15,7 @@ public class EventHandlerFunction
 
     [Function("OnEntityEvent")]
     [CosmosDBOutput(
-        databaseName: StorageConstants.MaterializedEntitiesDatabaseName, 
+        databaseName: StorageConstants.MaterializedEntitiesDatabaseName,
         containerName: StorageConstants.MaterializedStoriesContainerName,
         Connection = StorageConstants.CosmosConnectionSettingName,
         CreateIfNotExists = true)]

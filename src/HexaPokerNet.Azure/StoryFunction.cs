@@ -19,7 +19,7 @@ public class StoryFunction
 
     [Function("Story")]
     [CosmosDBOutput(
-        databaseName: StorageConstants.InputEventsDatabaseName, 
+        databaseName: StorageConstants.InputEventsDatabaseName,
         containerName: StorageConstants.EntityEventsContainerName,
         Connection = StorageConstants.CosmosConnectionSettingName,
         CreateIfNotExists = true)]
