@@ -22,7 +22,9 @@ public class EventHandlerFunction
     public StoryEntity OnEntityEvent([CosmosDBTrigger(
             databaseName: StorageConstants.InputEventsDatabaseName,
             containerName: StorageConstants.EntityEventsContainerName,
-            Connection = StorageConstants.CosmosConnectionSettingName)]
+            Connection = StorageConstants.CosmosConnectionSettingName,
+            LeaseDatabaseName = StorageConstants.MaterializedEntitiesDatabaseName,
+            CreateLeaseContainerIfNotExists = true)]
         IReadOnlyCollection<StoryAddedEvent> events)
     {
         return events
