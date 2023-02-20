@@ -18,8 +18,10 @@ public class StoryFunction
     }
 
     [Function("Story")]
-    [CosmosDBOutput("input-events", "entity-events",
-        Connection = "CosmosConnection",
+    [CosmosDBOutput(
+        databaseName: StorageConstants.InputEventsDatabaseName, 
+        containerName: StorageConstants.EntityEventsContainerName,
+        Connection = StorageConstants.CosmosConnectionSettingName,
         CreateIfNotExists = true)]
     public async Task<StoryAddedEvent> PostStory(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
