@@ -1,3 +1,4 @@
+using System.Net;
 using HexaPokerNet.Application.Events;
 using HexaPokerNet.Domain;
 using Microsoft.Azure.Functions.Worker;
@@ -30,6 +31,35 @@ public class StoryFunction
         var storyId = _entityIdGenerator.NewId();
         var storyAddedEvent = new StoryAddedEvent(storyId, input.Title);
         return storyAddedEvent;
+    }
+
+    [Function("GetStoryById")]
+    public async Task<HttpResponseData> GetStory(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Story/{storyId}")]
+        HttpRequestData req,
+        [CosmosDBInput(
+            databaseName: StorageConstants.MaterializedEntitiesDatabaseName,
+            containerName: StorageConstants.MaterializedStoriesContainerName,
+            Connection = StorageConstants.CosmosConnectionSettingName,
+            SqlQuery = "SELECT * FROM c WHERE c.id = {storyId}")
+        ]
+        IEnumerable<StoryEntity> queryResults)
+    {
+        var res = req.CreateResponse();
+
+        var story = queryResults.SingleOrDefault();
+        if (story == null)
+        {
+            _logger.LogInformation("Story not found.");
+            res.StatusCode = HttpStatusCode.NotFound;
+        }
+        else
+        {
+            res.StatusCode = HttpStatusCode.OK;
+            await res.WriteAsJsonAsync(story);
+        }
+
+        return res;
     }
 }
 
