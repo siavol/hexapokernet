@@ -1,4 +1,5 @@
 using Confluent.Kafka;
+using HexaPokerNet.Adapter.Kafka;
 using HexaPokerNet.Application.Events;
 using HexaPokerNet.Application.Infrastructure;
 using HexaPokerNet.Application.Repositories;

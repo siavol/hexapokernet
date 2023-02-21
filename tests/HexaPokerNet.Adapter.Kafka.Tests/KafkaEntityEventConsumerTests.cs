@@ -1,9 +1,8 @@
 using Confluent.Kafka;
-using HexaPokerNet.Adapter.Repositories.Kafka;
 using HexaPokerNet.Application.Events;
 using Moq;
 
-namespace HexaPokerNet.Adapter.Tests.Repositories.Kafka;
+namespace HexaPokerNet.Adapter.Kafka.Tests;
 
 [TestFixture]
 public class KafkaEntityEventConsumerTests

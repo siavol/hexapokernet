@@ -21,4 +21,8 @@
     <ProjectReference Include="..\..\src\HexaPokerNet.Adapter\HexaPokerNet.Adapter.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repositories\Kafka" />
+  </ItemGroup>
+
 </Project>

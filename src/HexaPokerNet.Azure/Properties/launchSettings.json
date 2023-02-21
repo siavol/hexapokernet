@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "HexaPokerNet.Azure2": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7010",
+      "launchBrowser": false
+    }
+  }
+}

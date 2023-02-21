@@ -1,5 +1,6 @@
 using System.Reflection;
 using HexaPokerNet.Adapter;
+using HexaPokerNet.Adapter.Kafka;
 using HexaPokerNet.Adapter.Repositories;
 using HexaPokerNet.Adapter.Repositories.Kafka;
 using HexaPokerNet.Application.Infrastructure;

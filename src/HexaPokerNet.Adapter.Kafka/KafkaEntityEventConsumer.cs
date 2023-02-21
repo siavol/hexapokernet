@@ -1,7 +1,7 @@
 using Confluent.Kafka;
 using HexaPokerNet.Application.Events;
 
-namespace HexaPokerNet.Adapter.Repositories.Kafka;
+namespace HexaPokerNet.Adapter.Kafka;
 
 public class KafkaEntityEventConsumer : IDisposable
 {

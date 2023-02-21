@@ -3,7 +3,7 @@ using HexaPokerNet.Application.Events;
 using HexaPokerNet.Application.Infrastructure;
 using Microsoft.Extensions.Logging;
 
-namespace HexaPokerNet.Adapter.Repositories.Kafka;
+namespace HexaPokerNet.Adapter.Kafka;
 
 public interface IKafkaEntityEventConsumerErrorStrategy
 {
